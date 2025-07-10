@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
@@ -12,11 +12,11 @@ const products = [
     date: '2025-07-10',
     tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
-        { colorName: 'Đen', size: 'S', inStock: true },
-        { colorName: 'Đen', size: 'M', inStock: false },
-        { colorName: 'Đen', size: 'L', inStock: true },
-        { colorName: 'Trắng', size: 'S', inStock: true },
-        { colorName: 'Trắng', size: 'M', inStock: true },
+        { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: true },
+        { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'L', inStock: true },
+        { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'S', inStock: true },
+        { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'M', inStock: true },
     ]
   },
   {
@@ -28,9 +28,9 @@ const products = [
     date: '2025-07-09',
     tags: [{ text: 'New Arrival', color: 'bg-black' }, { text: 'Best Seller', color: 'bg-red-600' }],
     variants: [
-        { colorName: 'Xám', size: 'M', inStock: true },
-        { colorName: 'Xám', size: 'L', inStock: false },
-        { colorName: 'Xám', size: 'XL', inStock: true },
+        { colorName: 'Xám', colorHex: '#808080', size: 'M', inStock: true },
+        { colorName: 'Xám', colorHex: '#808080', size: 'L', inStock: false },
+        { colorName: 'Xám', colorHex: '#808080', size: 'XL', inStock: true },
     ]
   },
   {
@@ -42,9 +42,9 @@ const products = [
     date: '2025-06-20',
     tags: [{ text: 'Hết hàng', color: 'bg-gray-500' }],
     variants: [
-        { colorName: 'Đen', size: 'S', inStock: false },
-        { colorName: 'Đen', size: 'M', inStock: false },
-        { colorName: 'Đen', size: 'L', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'L', inStock: false },
     ]
   },
   {
@@ -57,66 +57,17 @@ const products = [
     date: '2025-05-15',
     tags: [{ text: 'Sale', color: 'bg-red-600' }],
      variants: [
-        { colorName: 'Xanh', size: 'S', inStock: true },
-        { colorName: 'Xanh', size: 'M', inStock: true },
-    ]
-  },
-    {
-    id: 5,
-    name: "DENIM CAMP CAP",
-    price: "800000",
-    imageUrl: "https://cdn.hstatic.net/products/1000306633/_dsf1014_9552062794e847d8aea8eab46ed2e6ef.jpg",
-    imageUrlBack: "https://cdn.hstatic.net/products/1000306633/_dsf1017_e58c7e5988dc4705a48caaf4a3e0730e.jpg",
-    date: '2025-06-20',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }],
-    variants: [
-        { colorName: 'Đen', size: 'S', inStock: true },
-        { colorName: 'Đen', size: 'M', inStock: true },
-        { colorName: 'Đen', size: 'L', inStock: true },
-    ]
-  },
-   {
-    id: 6,
-    name: "BLACK WAX BIKER JACKET",
-    price: "3235000",
-    imageUrl: "https://product.hstatic.net/1000306633/product/untitled_session0200_abd01f6cede142f09d32917a9f7475fa.jpg",
-    imageUrlBack: "https://product.hstatic.net/1000306633/product/untitled_session0217_ea1a74e1f9b249f9980fb4fb5f4f26d9.jpg",
-    date: '2025-05-15',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }],
-     variants: [
-        { colorName: 'Xanh', size: 'S', inStock: true },
-        { colorName: 'Xanh', size: 'M', inStock: true },
-    ]
-  },
-     {
-    id: 7,
-    name: "OBSTREPEROUS VARSITY JACKET",
-    price: "3235000",
-    imageUrl: "https://product.hstatic.net/1000306633/product/var1_1e60f3df53744137a96de078f53bd08a.jpg",
-    imageUrlBack: "https://product.hstatic.net/1000306633/product/var2_037ba1b1e896408abdde8c84959ca74d.jpg",
-    date: '2025-05-15',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }],
-     variants: [
-        { colorName: 'Xanh', size: 'S', inStock: true },
-        { colorName: 'Xanh', size: 'M', inStock: true },
-    ]
-  },
-       {
-    id: 8,
-    name: "SPLICE POLO",
-    price: "1235000",
-    imageUrl: "https://product.hstatic.net/1000306633/product/untitled_session0156_c644f3db69f74052bef5b087ebe22e2e.jpg",
-    imageUrlBack: "https://product.hstatic.net/1000306633/product/untitled_session0174_ed22cd5050f5403d85d7691eb89eaa30.jpg",
-    date: '2025-05-15',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }],
-     variants: [
-        { colorName: 'Xanh', size: 'S', inStock: true },
-        { colorName: 'Xanh', size: 'M', inStock: true },
+        { colorName: 'Xanh', colorHex: '#3B82F6', size: 'S', inStock: true },
+        { colorName: 'Xanh', colorHex: '#3B82F6', size: 'M', inStock: true },
     ]
   },
 ];
 
 const menuData = [
+  {
+    title: "NEW COLLECTION",
+    subItems: []
+  },
   {
     title: "TOPS",
     subItems: ["Áo thun & Polo", "Sơ mi", "Áo len", "Hoodie & Sweatshirt", "Áo khoác"]
@@ -134,8 +85,8 @@ const menuData = [
     subItems: []
   },
   {
-    title: "ABOUT US",
-    subItems: []
+      title: "ABOUT US",
+      subItems: []
   }
 ];
 
@@ -155,7 +106,7 @@ const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
-const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart }) => {
+const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickViewOpen }) => {
     const hasOutOfStockSize = useMemo(() => {
         return product.variants.some(s => !s.inStock);
     }, [product.variants]);
@@ -198,11 +149,12 @@ const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart }) => {
                     ))}
                 </div>
             )}
-            <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out" />
+            <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0" />
             <img src={product.imageUrlBack} alt={`${product.name} (mặt sau)`} className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
-            <div className="absolute bottom-4 left-0 right-0 px-4 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <button disabled={isCompletelyOutOfStock} className="flex-grow bg-black text-white text-xs font-bold py-2.5 rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
-                <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock} className="p-2.5 bg-black text-white rounded-md hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+            <div className="absolute bottom-4 left-0 right-0 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <button onClick={() => onQuickViewOpen(product)} className="w-full sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md text-center">XEM NHANH</button>
+                <button onClick={() => onQuickViewOpen(product)} disabled={isCompletelyOutOfStock} className="w-full sm:flex-grow sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md text-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
+                <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock} className="w-full sm:w-12 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md flex items-center justify-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                     <ShoppingCart size={16} />
                 </button>
             </div>
@@ -293,12 +245,12 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
                 <div className="relative flex justify-between items-center h-14">
                     <div className="flex-1 flex justify-start">
                         <button onClick={onMobileMenuOpen} className="lg:hidden"><Menu className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
-                        <a href="#" onClick={(e) => handleNavClick(e, {title: 'NEW COLLECTION'})} className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>DAVERVE</a>
+                        <a href="#" onClick={(e) => handleNavClick(e, {title: 'NEW COLLECTION'})} className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>MEVY</a>
                     </div>
                     <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                         {menuData.map(item => <div key={item.title} onMouseEnter={() => handleMouseEnterMenu(item.title)} className="h-14 flex items-center"><a href="#" onClick={(e) => handleNavClick(e, item)} className={`text-base font-bold whitespace-nowrap transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>{item.title}</a></div>)}
                     </nav>
-                    <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><a href="#" onClick={(e) => handleNavClick(e, {title: 'NEW COLLECTION'})} className={`text-3xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>DAVERVE</a></div>
+                    <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><a href="#" onClick={(e) => handleNavClick(e, {title: 'NEW COLLECTION'})} className={`text-3xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>MEVY</a></div>
                     <div className="flex-1 flex justify-end items-center gap-4">
                         <button onClick={onSearchOpen}><Search className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
                         <button onClick={onWishlistOpen} className="relative hidden sm:block">
@@ -396,7 +348,7 @@ const FilterPanel = ({ isOpen, onClose, selectedColors, setSelectedColors, selec
     );
 };
 
-const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFromCart }) => {
+const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFromCart, setCurrentPage, setIsCartOpen }) => {
     if (!isOpen) return null;
 
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -445,7 +397,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFro
                             <span className="font-bold text-lg">{formatPrice(total)}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
-                            <button className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300">XEM GIỎ HÀNG</button>
+                            <button onClick={() => { setCurrentPage('cart'); setIsCartOpen(false); }} className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300">XEM GIỎ HÀNG</button>
                             <button className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800">THANH TOÁN</button>
                         </div>
                     </div>
@@ -455,11 +407,155 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFro
     );
 };
 
+const QuickViewModal = ({ product, onClose, onAddToCart }) => {
+    // Compute the default variant up front
+    const defaultVariant = product.variants?.find(v => v.inStock) || product.variants?.[0] || null;
+    const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
+    const [quantity, setQuantity] = useState(1);
+    const [currentImage, setCurrentImage] = useState(product?.imageUrl || '');
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isFullViewOpen, setIsFullViewOpen] = useState(false);
+
+    const isCompletelyOutOfStock = product.variants.every(v => !v.inStock);
+
+    // Escape key closes full view modal
+    useEffect(() => {
+        if (!isFullViewOpen) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setIsFullViewOpen(false);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isFullViewOpen]);
+
+    // If no valid variant is selected, show a message
+    if (!selectedVariant) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[70] flex justify-center items-center animate-fade-in" onClick={onClose}>
+                <div className="bg-white rounded-lg w-full max-w-md p-6 relative" onClick={e => e.stopPropagation()}>
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-black"><X size={24} /></button>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
+                        <p className="text-gray-600 mb-4">Sản phẩm này hiện không có biến thể khả dụng.</p>
+                        <button onClick={onClose} className="bg-black text-white font-bold py-2 px-4 rounded-md hover:bg-gray-800">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    const handleAddToCartClick = () => {
+        if (selectedVariant) {
+            onAddToCart(product, { ...selectedVariant, quantity });
+            onClose();
+        }
+    };
+
+    const images = [product.imageUrl, product.imageUrlBack].filter(Boolean);
+
+    const nextImage = () => {
+        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+    };
+
+    const prevImage = () => {
+        setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[70] flex justify-center items-center animate-fade-in" onClick={onClose}>
+            <div className="bg-white rounded-lg w-full max-w-4xl h-auto max-h-[90vh] flex p-6 relative" onClick={e => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-black"><X size={24} /></button>
+                <div className="w-1/2 pr-4 relative flex">
+                    {/* Thumbnails on the left */}
+                    <div className="flex flex-col gap-2 items-center justify-center mr-4">
+                        {images.map((img, idx) => (
+                            <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`border rounded-md p-0.5 transition-all ${currentImageIndex === idx ? 'border-black' : 'border-transparent'} border-[1px]`}> 
+                                <img src={img} alt={`Preview ${idx+1}`} className="w-14 h-14 object-contain rounded" />
+                            </button>
+                        ))}
+                    </div>
+                    {/* Main image and full view button */}
+                    <div className="flex-1 flex flex-col items-center justify-center relative">
+                        <img src={images[currentImageIndex]} alt={product.name} className="w-full h-full object-contain rounded-md" />
+                        {images.length > 1 && (
+                            <>
+                                <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-1 hover:bg-white"><ChevronLeft size={20} /></button>
+                                <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-1 hover:bg-white"><ChevronRight size={20} /></button>
+                            </>
+                        )}
+                        {/* Full view button */}
+                        <button onClick={() => setIsFullViewOpen(true)} className="mt-4 bg-white border border-gray-300 rounded p-2 shadow hover:bg-gray-100 flex items-center justify-center">
+                            <svg xmlns='http://www.w3.org/2000/svg' className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M20 8V4h-4M4 16v4h4m12-4v4h-4" /></svg>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Full view modal */}
+                {isFullViewOpen && (
+                    <div className="fixed inset-0 z-[100] bg-black bg-opacity-90 flex flex-col items-center justify-center animate-fade-in" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
+                        <button onClick={() => setIsFullViewOpen(false)} className="absolute top-6 right-8 text-white text-3xl"><X size={32} /></button>
+                        <div className="relative flex items-center justify-center w-full h-full" onClick={e => e.stopPropagation()}>
+                            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-black rounded-full p-2"><ChevronLeft size={32} /></button>
+                            <img src={images[currentImageIndex]} alt={product.name} className="max-h-[70vh] max-w-[80vw] object-contain mx-auto" />
+                            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-black rounded-full p-2"><ChevronRight size={32} /></button>
+                        </div>
+                        {/* Dot indicators */}
+                        <div className="flex justify-center gap-2 mt-6">
+                            {images.map((_, idx) => (
+                                <span key={idx} className={`inline-block w-2 h-2 rounded-full ${currentImageIndex === idx ? 'bg-white' : 'bg-gray-500'}`}></span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div className="w-1/2 pl-4 flex flex-col">
+                    <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
+                    <p className="text-xl text-gray-800 mb-4">{formatPrice(product.price)}</p>
+                    
+                    <div className="mb-4">
+                        <h3 className="text-sm font-bold mb-2">MÀU SẮC: {selectedVariant.colorName}</h3>
+                        <div className="flex items-center gap-2">
+                            {[...new Map(product.variants.map(item => [item.colorName, item])).values()].map(colorVariant => (
+                                <button key={colorVariant.colorName} onClick={() => setSelectedVariant(colorVariant)} className={`w-8 h-8 rounded-full border transition-all ${selectedVariant.colorName === colorVariant.colorName ? 'border-black scale-110' : 'border-gray-300'}`} style={{backgroundColor: colorVariant.colorHex}}></button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <h3 className="text-sm font-bold mb-2">KÍCH THƯỚC</h3>
+                         <div className="flex items-center gap-2">
+                            {product.variants.filter(v => v.colorName === selectedVariant.colorName).map(sizeVariant => (
+                                <button key={sizeVariant.size} onClick={() => setSelectedVariant(sizeVariant)} disabled={!sizeVariant.inStock} className={`relative border rounded-md px-4 py-2 min-w-[48px] text-sm font-semibold transition-colors ${selectedVariant.size === sizeVariant.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
+                                    {sizeVariant.size}
+                                    {!sizeVariant.inStock && <div className="absolute inset-0 flex items-center justify-center"><div className="w-full h-px bg-gray-400 transform rotate-[-20deg]"></div></div>}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                     <div className="mb-4">
+                        <h3 className="text-sm font-bold mb-2">SỐ LƯỢNG</h3>
+                        <div className="flex items-center border rounded-md w-fit">
+                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1"><Minus size={16} /></button>
+                            <span className="px-4 text-lg">{quantity}</span>
+                            <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1"><Plus size={16} /></button>
+                        </div>
+                    </div>
+
+                    <div className="mt-auto pt-4 space-y-2">
+                        <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed">THÊM VÀO GIỎ HÀNG</button>
+                        <button disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const Marquee = () => (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-black text-white py-2 overflow-hidden">
         <div className="marquee-content flex">
-            {[...Array(6)].map((_, i) => <span key={i} className="text-lg font-bold whitespace-nowrap px-6"><span className="text-red-600">GET TO KNOW ABOUT OUR VIBE</span> - DAVERVE STUDIO 2025</span>)}
+            {[...Array(6)].map((_, i) => <span key={i} className="text-lg font-bold whitespace-nowrap px-6"><span className="text-cyan-400">GET TO KNOW ABOUT OUR VIBE</span> - MEVY STUDIO 2025</span>)}
         </div>
     </div>
 );
@@ -472,13 +568,12 @@ const Footer = () => (
         <div><h3 className="text-lg font-bold mb-4">PHÁP LÝ</h3><ul><li className="mb-2"><a href="#" className="hover:underline">Điều khoản</a></li><li className="mb-2"><a href="#" className="hover:underline">Bảo mật</a></li></ul></div>
         <div><h3 className="text-lg font-bold mb-4">THEO DÕI</h3><ul><li className="mb-2"><a href="#" className="hover:underline">Instagram</a></li><li className="mb-2"><a href="#" className="hover:underline">Facebook</a></li><li className="mb-2"><a href="#" className="hover:underline">Tiktok</a></li></ul></div>
       </div>
-      {/* <div className="text-center mt-10 pt-5 border-t border-gray-200 text-sm text-gray-500"><p>Bản quyền © 2024 DAVERVE. Mọi quyền được bảo lưu.</p></div> */}
+      <div className="text-center mt-10 pt-5 border-t border-gray-200 text-sm text-gray-500"><p>Bản quyền © 2024 MEVY. Mọi quyền được bảo lưu.</p></div>
     </footer>
 );
 
 const AboutUsPage = ({ onBack }) => (
     <>
-        <Header onMobileMenuOpen={()=>{}} setIsMegaMenuOpen={()=>{}} onSearchOpen={()=>{}} onWishlistOpen={()=>{}} onCartOpen={()=>{}} onNavigate={onBack} forceSolid={true} />
         <main className="pt-20">
             <div className="max-w-4xl mx-auto px-4 py-16">
                 <h1 className="text-4xl font-bold text-center mb-8">ABOUT US</h1>
@@ -512,6 +607,68 @@ const AboutUsPage = ({ onBack }) => (
     </>
 );
 
+// Wrapper for QuickViewModal to avoid conditional hooks
+function QuickViewModalWrapper(props) {
+    if (!props.product) return null;
+    return <QuickViewModal {...props} />;
+}
+
+const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => {
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return (
+    <div className="max-w-5xl mx-auto pt-24 px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Left column: product list and note */}
+      <div className="md:col-span-2">
+        <h2 className="text-3xl font-bold text-center mb-8">Giỏ hàng của bạn</h2>
+        <div className="bg-gray-50 rounded p-4 mb-6 text-gray-700 font-semibold">
+          Có <span className="text-black font-bold">{cartItems.length}</span> sản phẩm trong giỏ hàng
+        </div>
+        <div className="space-y-6">
+          {cartItems.length > 0 ? cartItems.map(item => (
+            <div key={item.id} className="flex items-center gap-4 border-b pb-4">
+              <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-contain rounded-md border" />
+              <div className="flex-1">
+                <div className="font-bold uppercase">{item.name}</div>
+                <div className="text-sm text-gray-500">{formatPrice(item.price)}</div>
+                <div className="text-sm text-gray-500 mt-1">{item.size}</div>
+              </div>
+              <div className="flex items-center border rounded-md bg-white">
+                <button onClick={() => onUpdateQuantity(item.id, item.quantity - 1)} className="px-2 py-1 disabled:opacity-50" disabled={item.quantity <= 1}><Minus size={14} /></button>
+                <span className="px-3 text-sm">{item.quantity}</span>
+                <button onClick={() => onUpdateQuantity(item.id, item.quantity + 1)} className="px-2 py-1"><Plus size={14} /></button>
+              </div>
+              <div className="font-bold w-24 text-right">{formatPrice(item.price * item.quantity)}</div>
+              <button onClick={() => onRemoveFromCart(item.id)} className="ml-2 text-gray-400 hover:text-black"><X size={18} /></button>
+            </div>
+          )) : <div className="text-center text-gray-500">Chưa có sản phẩm nào trong giỏ hàng.</div>}
+        </div>
+        {/* Order note */}
+        <div className="mt-8">
+          <div className="bg-gray-100 px-4 py-2 rounded-t text-gray-700 font-semibold">Ghi chú đơn hàng</div>
+          <textarea className="w-full border-0 rounded-b bg-gray-100 p-4 min-h-[100px] focus:outline-none resize-none" placeholder=""></textarea>
+        </div>
+      </div>
+      {/* Right column: order summary */}
+      <div>
+        <div className="border rounded-lg p-6 bg-white">
+          <div className="font-bold text-lg mb-2">Thông tin đơn hàng</div>
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <span className="text-gray-600">Tổng tiền:</span>
+            <span className="font-bold text-red-600 text-xl">{formatPrice(total)}</span>
+          </div>
+          <button className="w-full bg-red-600 text-white text-center font-bold py-3 rounded mb-4">THANH TOÁN</button>
+          <div className="flex items-center text-gray-400 text-sm gap-2">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            <button onClick={onBack} className="hover:underline disabled:opacity-50" style={{color:'#888'}}>
+              Tiếp tục mua hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -524,16 +681,29 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState('featured');
   const [wishlist, setWishlist] = useState([]);
   const [cartItems, setCartItems] = useState([]);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [lastAddedItem, setLastAddedItem] = useState(null);
+  const [showCartBubble, setShowCartBubble] = useState(false);
+
+  const handleQuickViewOpen = (product) => {
+    setQuickViewProduct(product);
+  };
 
   const handleAddToCart = (product, variant) => {
     const cartItemId = `${product.id}-${variant.colorName}-${variant.size}`;
     const existingItem = cartItems.find(item => item.id === cartItemId);
+    let newItem;
     if (existingItem) {
         setCartItems(cartItems.map(item => item.id === cartItemId ? { ...item, quantity: item.quantity + 1 } : item));
+        newItem = { ...existingItem, quantity: existingItem.quantity + 1 };
     } else {
-        setCartItems([...cartItems, { ...product, ...variant, id: cartItemId, quantity: 1 }]);
+        newItem = { ...product, ...variant, id: cartItemId, quantity: 1 };
+        setCartItems([...cartItems, newItem]);
     }
-    setIsCartOpen(true);
+    setLastAddedItem(newItem);
+    setShowCartBubble(true);
+    setTimeout(() => setShowCartBubble(false), 2500);
   };
   
   const handleUpdateQuantity = (itemId, newQuantity) => {
@@ -546,6 +716,24 @@ export default function App() {
 
   const handleRemoveFromCart = (itemId) => {
     setCartItems(cartItems.filter(item => item.id !== itemId));
+  };
+
+  const handleUpdateVariant = (item, newVariant) => {
+    const productId = item.id.split('-')[0];
+    const product = products.find(p => p.id === Number(productId));
+    if (!product) return;
+
+    const allVariants = product.variants;
+    const existingVariant = allVariants.find(v => v.colorName === newVariant.colorName && v.size === newVariant.size);
+
+    if (existingVariant && existingVariant.inStock) {
+        setCartItems(cartItems.map(cartItem => {
+            if (cartItem.id === item.id) {
+                return { ...cartItem, colorName: newVariant.colorName, size: newVariant.size };
+            }
+            return cartItem;
+        }));
+    }
   };
 
 
@@ -594,7 +782,7 @@ export default function App() {
             return (
                 <main>
                   <section id="top-banner" className="relative w-full bg-black">
-                    <video autoPlay loop muted playsInline className="w-full h-auto"><source src="./videos/background.mp4" type="video/mp4" /></video>
+                    <video autoPlay loop muted playsInline className="w-full h-auto"><source src="./videos/background1.mp4" /></video>
                     <div className="absolute z-10 bottom-10 left-1/2 -translate-x-1/2"><a href="#product-grid" className="text-white animate-bounce-slow"><ArrowDown size={32} /></a></div>
                   </section>
                   <div className="sticky top-14 z-30 bg-white shadow-sm">
@@ -617,7 +805,7 @@ export default function App() {
                   <section id="product-grid" className="py-16 px-4 sm:px-6 lg:px-8">
                     {filteredProducts.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-12">
-                            {filteredProducts.map(product => <ProductCard key={product.id} product={product} onAddToWishlist={toggleWishlist} wishlist={wishlist} onAddToCart={handleAddToCart} />)}
+                            {filteredProducts.map(product => <ProductCard key={product.id} product={product} onAddToWishlist={toggleWishlist} wishlist={wishlist} onAddToCart={handleAddToCart} onQuickViewOpen={handleQuickViewOpen} />)}
                         </div>
                     ) : (
                         <div className="text-center py-20"><p className="text-xl text-gray-500">Không tìm thấy sản phẩm phù hợp.</p></div>
@@ -630,16 +818,44 @@ export default function App() {
 
   return (
     <>
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-[200] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
+          {toastMessage}
+        </div>
+      )}
+      {/* Cart bubble notification */}
+      {showCartBubble && lastAddedItem && (
+        <div className="fixed top-16 right-8 z-[200] bg-white border border-gray-200 shadow-xl rounded-lg w-80 animate-fade-in flex flex-col">
+          <div className="flex items-center gap-3 p-4 border-b">
+            <img src={lastAddedItem.imageUrl} alt={lastAddedItem.name} className="w-16 h-16 object-contain rounded-md border" />
+            <div className="flex-1">
+              <div className="font-bold text-sm line-clamp-2">{lastAddedItem.name}</div>
+              <div className="text-xs text-gray-500 mt-1">{lastAddedItem.colorName} / {lastAddedItem.size}</div>
+              <div className="text-xs text-gray-500 mt-1">Số lượng: {lastAddedItem.quantity}</div>
+            </div>
+            <button onClick={() => setShowCartBubble(false)} className="text-gray-400 hover:text-black"><X size={18} /></button>
+          </div>
+          <div className="flex items-center justify-between px-4 py-2">
+            <span className="font-bold text-base text-black">{formatPrice(lastAddedItem.price * lastAddedItem.quantity)}</span>
+          </div>
+          <div className="flex gap-2 px-4 pb-4">
+            <button onClick={() => { setCurrentPage('cart'); setShowCartBubble(false); }} className="flex-1 bg-gray-200 text-black font-bold py-2 rounded hover:bg-gray-300">XEM GIỎ HÀNG</button>
+            <button onClick={() => { setCurrentPage('cart'); setShowCartBubble(false); }} className="flex-1 bg-black text-white font-bold py-2 rounded hover:bg-gray-800">THANH TOÁN</button>
+          </div>
+        </div>
+      )}
       <style>{style}</style>
       <div className="bg-white min-h-screen pb-12">
         <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={currentPage !== 'home'} />
         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} onNavigate={setCurrentPage}/>
         <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} />
-        
-        <div className={`transition-filter duration-300 ${isMegaMenuOpen || isCartOpen ? 'blur-sm pointer-events-none' : ''}`}>
-            {renderPage()}
-            <Footer />
+        <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} setCurrentPage={setCurrentPage} setIsCartOpen={setIsCartOpen} />
+        <QuickViewModalWrapper product={quickViewProduct} onClose={() => setQuickViewProduct(null)} onAddToCart={handleAddToCart} />
+        <div className={`transition-filter duration-300 ${isMegaMenuOpen || isCartOpen || quickViewProduct ? 'blur-sm pointer-events-none' : ''}`}> 
+          {currentPage === 'cart' ? (
+            <CartPage cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} onBack={() => setCurrentPage('home')} />
+          ) : renderPage()}
+          <Footer />
         </div>
         <Marquee />
       </div>
