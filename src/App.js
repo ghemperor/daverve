@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+   import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // --- Dữ liệu giả lập (Mock Data) ---
@@ -273,15 +273,69 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
     );
 };
 
-const SearchOverlay = ({ isOpen, onClose }) => {
+const SearchOverlay = ({ isOpen, onClose, searchQuery, setSearchQuery, searchResults, isSearchActive, onQuickViewOpen, onAddToWishlist, wishlist, onAddToCart, handleClearSearch }) => {
+    const inputRef = useRef(null);
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isOpen]);
     if (!isOpen) return null;
     return (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-white shadow-md animate-fade-in-down">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
-                <div className="relative flex items-center h-16">
-                    <Search className="absolute left-0 text-gray-400" />
-                    <input type="text" placeholder="Search" className="w-full bg-transparent text-black text-lg pl-10 focus:outline-none" autoFocus />
-                    <button onClick={onClose} className="absolute right-0 text-gray-500 hover:text-black"><X size={24} /></button>
+        <div className="fixed inset-0 z-[100] bg-white text-black flex flex-col animate-fade-in" style={{fontFamily: 'Roboto Condensed, sans-serif'}}>
+            <button onClick={onClose} className="absolute top-8 right-10 text-gray-500 hover:text-black text-3xl font-bold z-20 transition-colors">×</button>
+            <div className="flex flex-col items-center justify-start w-full h-full pt-24 px-2 sm:px-0">
+                <div className="flex items-center w-full max-w-3xl mx-auto mb-12 px-4">
+                    <span className="text-2xl sm:text-3xl font-extrabold tracking-widest mr-6 uppercase" style={{letterSpacing:'0.12em'}}>Search</span>
+                    <div className="relative flex-1 flex items-center">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            placeholder="Tìm kiếm sản phẩm..."
+                            className="w-full bg-white border border-gray-300 rounded-full text-black text-lg sm:text-xl px-8 py-3 pr-12 focus:outline-none focus:border-black placeholder-gray-400 tracking-widest font-mono shadow-sm transition-all"
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                            style={{minWidth:180, fontFamily: 'Roboto Condensed, monospace'}}
+                        />
+                        {searchQuery && (
+                            <button onClick={handleClearSearch} className="absolute right-14 text-gray-400 hover:text-black text-base font-mono tracking-widest transition-colors">CLEAR</button>
+                        )}
+                        {/* Nút tìm kiếm (icon kính lúp) nằm trong input */}
+                        <button
+                            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white hover:bg-gray-100 border border-gray-300 flex items-center justify-center"
+                            tabIndex={-1}
+                            aria-label="Tìm kiếm"
+                            type="button"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="11" cy="11" r="7" strokeWidth="2"/>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="w-full flex-1 flex flex-col items-center justify-start">
+                    {isSearchActive ? (
+                        <div className="w-full px-1 sm:px-6">
+                            {searchResults.length > 0 ? (
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6">
+                                    {searchResults.map((product, idx) => (
+                                        <div key={product.id} className="flex flex-col h-[470px] bg-white relative border border-black" style={{minWidth:0}}>
+                                            <ProductCardSearch
+                                                product={product}
+                                                onAddToCart={onAddToCart}
+                                                onQuickViewOpen={onQuickViewOpen}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-20 text-gray-400 text-lg tracking-widest">Không tìm thấy sản phẩm phù hợp.</div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="text-center py-20 text-gray-400 text-lg tracking-widest">Nhập từ khóa để tìm kiếm sản phẩm...</div>
+                    )}
                 </div>
             </div>
         </div>
@@ -669,6 +723,33 @@ const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => 
   );
 };
 
+// Card sản phẩm tối giản, tinh tế cho search overlay
+const ProductCardSearch = ({ product, onAddToCart, onQuickViewOpen }) => {
+    const [hovered, setHovered] = useState(false);
+    const hasBack = !!product.imageUrlBack;
+    return (
+        <div
+            className="flex flex-col h-full bg-white relative group"
+            style={{minWidth:0}}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            <div className="flex-1 flex items-center justify-center p-6 cursor-pointer" onClick={() => onQuickViewOpen(product)}>
+                <img
+                    src={hovered && hasBack ? product.imageUrlBack : product.imageUrl}
+                    alt={product.name}
+                    className="object-contain max-h-60 w-auto mx-auto transition-all duration-300"
+                />
+            </div>
+            <div className="border-t border-black px-4 py-3 flex flex-col gap-1 items-start">
+                <div className="font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-black truncate" title={product.name}>{product.name}</div>
+                <div className="font-mono text-xs text-gray-700">{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}</div>
+            </div>
+            <button onClick={() => onAddToCart(product, product.variants[0])} className="absolute bottom-3 right-3 w-7 h-7 flex items-center justify-center border border-black bg-white text-black rounded-none hover:bg-black hover:text-white transition-colors text-lg font-bold p-0" style={{fontFamily:'inherit'}}>+</button>
+        </div>
+    );
+};
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -685,6 +766,10 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState("");
   const [lastAddedItem, setLastAddedItem] = useState(null);
   const [showCartBubble, setShowCartBubble] = useState(false);
+  // --- Search state ---
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   const handleQuickViewOpen = (product) => {
     setQuickViewProduct(product);
@@ -758,6 +843,28 @@ export default function App() {
   }, [selectedColors, selectedSizes, sortOrder]);
 
   const activeFilterCount = selectedColors.length + selectedSizes.length;
+
+  // Search logic
+  useEffect(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
+      setSearchResults([]);
+      setIsSearchActive(false);
+      return;
+    }
+    const results = products.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.variants && p.variants.some(v => v.colorName.toLowerCase().includes(q) || v.size.toLowerCase().includes(q)))
+    );
+    setSearchResults(results);
+    setIsSearchActive(true);
+  }, [searchQuery]);
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearchActive(false);
+  };
 
   const style = `
     @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap');
@@ -848,7 +955,19 @@ export default function App() {
       <div className="bg-white min-h-screen pb-12">
         <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={currentPage !== 'home'} />
         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} onNavigate={setCurrentPage}/>
-        <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+        <SearchOverlay
+          isOpen={isSearchOpen}
+          onClose={() => { handleClearSearch(); setIsSearchOpen(false); }}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          searchResults={searchResults}
+          isSearchActive={isSearchActive}
+          onQuickViewOpen={handleQuickViewOpen}
+          onAddToWishlist={toggleWishlist}
+          wishlist={wishlist}
+          onAddToCart={handleAddToCart}
+          handleClearSearch={handleClearSearch}
+        />
         <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} setCurrentPage={setCurrentPage} setIsCartOpen={setIsCartOpen} />
         <QuickViewModalWrapper product={quickViewProduct} onClose={() => setQuickViewProduct(null)} onAddToCart={handleAddToCart} />
         <div className={`transition-filter duration-300 ${isMegaMenuOpen || isCartOpen || quickViewProduct ? 'blur-sm pointer-events-none' : ''}`}> 
