@@ -1,5 +1,7 @@
    import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
+import ScrollToTop from './ScrollToTop';
 
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
@@ -35,7 +37,7 @@ const products = [
   },
   {
     id: 3,
-    name: "HEAVEN’S CALL HOODIE ZIP",
+    name: "HEAVEN'S CALL HOODIE ZIP",
     price: "4800000",
     imageUrl: "https://cdn.hstatic.net/products/1000306633/_dsf0923_a8c8dadacc63469b8add85972415a052.jpg",
     imageUrlBack: "https://cdn.hstatic.net/products/1000306633/_dsf0943_99e992b7d7ee430a8271f613ba648bb4.jpg",
@@ -106,6 +108,7 @@ const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 };
 
+// Sửa ProductCard để click vào ảnh sẽ chuyển route
 const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickViewOpen }) => {
     const hasOutOfStockSize = useMemo(() => {
         return product.variants.some(s => !s.inStock);
@@ -125,18 +128,25 @@ const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickV
         }
     }
 
-    const handleAddToCartClick = () => {
+    const handleAddToCartClick = (e) => {
+        e.stopPropagation();
         const firstAvailableVariant = product.variants.find(v => v.inStock);
         if (firstAvailableVariant) {
             onAddToCart(product, firstAvailableVariant);
         }
     };
 
+    // Thêm navigate
+    const navigate = useNavigate();
+    const handleCardClick = () => {
+      navigate(`/product/${product.id}`);
+    };
+
     return (
-        <div className="group text-left">
+        <div className="group text-left cursor-pointer" onClick={handleCardClick}>
           <div className="relative rounded-lg mb-3 overflow-hidden aspect-[3/4] bg-gray-100">
             {hasOutOfStockSize && (
-                <button onClick={() => onAddToWishlist(product.id)} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-full transition-all hover:scale-110">
+                <button onClick={e => { e.stopPropagation(); onAddToWishlist(product.id); }} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
                     <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'text-red-500 fill-current' : 'text-black'}`} />
                 </button>
             )}
@@ -152,9 +162,9 @@ const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickV
             <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0" />
             <img src={product.imageUrlBack} alt={`${product.name} (mặt sau)`} className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
             <div className="absolute bottom-4 left-0 right-0 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                <button onClick={() => onQuickViewOpen(product)} className="w-full sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md text-center">XEM NHANH</button>
-                <button onClick={() => onQuickViewOpen(product)} disabled={isCompletelyOutOfStock} className="w-full sm:flex-grow sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md text-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
-                <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock} className="w-full sm:w-12 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-md flex items-center justify-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
+                <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} className="w-full sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center">XEM NHANH</button>
+                <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} disabled={isCompletelyOutOfStock} className="w-full sm:flex-grow sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
+                <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock} className="w-full sm:w-12 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm flex items-center justify-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
                     <ShoppingCart size={16} />
                 </button>
             </div>
@@ -750,6 +760,187 @@ const ProductCardSearch = ({ product, onAddToCart, onQuickViewOpen }) => {
     );
 };
 
+// Product Detail Page (basic version, will improve UI later)
+function ProductDetailPage({ products, onAddToCart }) {
+  const { id } = useParams();
+  const product = products.find(p => String(p.id) === String(id));
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+  const [selectedColor, setSelectedColor] = React.useState(null);
+  const [selectedSize, setSelectedSize] = React.useState(null);
+  const [quantity, setQuantity] = React.useState(1);
+  const [showSizeTable, setShowSizeTable] = React.useState(false);
+
+  // Đảm bảo các hook luôn được gọi, không phụ thuộc vào product
+  const images = React.useMemo(() => product ? [product.imageUrl, product.imageUrlBack].filter(Boolean) : [], [product]);
+  const colorOptions = React.useMemo(() => product ? [...new Map(product.variants.map(v => [v.colorName, v])).values()] : [], [product]);
+  const sizeOptions = React.useMemo(() => {
+    if (!product) return [];
+    if (selectedColor) return product.variants.filter(v => v.colorName === selectedColor.colorName);
+    return product.variants;
+  }, [product, selectedColor]);
+
+  React.useEffect(() => {
+    if (product && !selectedColor && colorOptions.length > 0) setSelectedColor(colorOptions[0]);
+    // eslint-disable-next-line
+  }, [product, selectedColor, colorOptions]);
+  React.useEffect(() => {
+    if (product && selectedColor && (!selectedSize || !sizeOptions.some(s => s.size === selectedSize.size))) {
+      const firstInStock = sizeOptions.find(s => s.inStock);
+      setSelectedSize(firstInStock || sizeOptions[0]);
+    }
+    // eslint-disable-next-line
+  }, [product, selectedColor, sizeOptions, selectedSize]);
+
+  if (!product) return <div className="pt-24 text-center">Không tìm thấy sản phẩm.</div>;
+
+  // Xác định variant hiện tại
+  const currentVariant = product.variants.find(v => v.colorName === selectedColor?.colorName && v.size === selectedSize?.size);
+  const isOutOfStock = !currentVariant?.inStock;
+
+  // Sản phẩm liên quan (dựa theo tag đầu tiên)
+  const relatedTag = product.tags?.[0]?.text;
+  const relatedProducts = products.filter(p => p.id !== product.id && p.tags?.some(t => t.text === relatedTag)).slice(0, 4);
+
+  // Thêm vào giỏ
+  const handleAddToCart = () => {
+    if (currentVariant && !isOutOfStock) {
+      onAddToCart(product, { ...currentVariant, quantity });
+    }
+  };
+
+  // Bảng size mẫu
+  const sizeTable = (
+    <div className="overflow-x-auto">
+      <table className="min-w-[320px] w-full border border-gray-300 text-sm mt-4">
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="border px-4 py-2">Size</th>
+            <th className="border px-4 py-2">Ngực (cm)</th>
+            <th className="border px-4 py-2">Dài áo (cm)</th>
+            <th className="border px-4 py-2">Vai (cm)</th>
+            <th className="border px-4 py-2">Tay (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td className="border px-4 py-2">S</td><td className="border px-4 py-2">48</td><td className="border px-4 py-2">68</td><td className="border px-4 py-2">42</td><td className="border px-4 py-2">20</td></tr>
+          <tr><td className="border px-4 py-2">M</td><td className="border px-4 py-2">50</td><td className="border px-4 py-2">70</td><td className="border px-4 py-2">44</td><td className="border px-4 py-2">21</td></tr>
+          <tr><td className="border px-4 py-2">L</td><td className="border px-4 py-2">52</td><td className="border px-4 py-2">72</td><td className="border px-4 py-2">46</td><td className="border px-4 py-2">22</td></tr>
+          <tr><td className="border px-4 py-2">XL</td><td className="border px-4 py-2">54</td><td className="border px-4 py-2">74</td><td className="border px-4 py-2">48</td><td className="border px-4 py-2">23</td></tr>
+        </tbody>
+      </table>
+    </div>
+  );
+
+  return (
+    <>
+      <ScrollToTop />
+      {/* Frame chi tiết sản phẩm - vùng an toàn */}
+      <div className="max-w-[1600px] mx-auto min-h-screen flex flex-col justify-center py-12 px-2 md:px-6 rounded-xl mt-24">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 flex-1 items-start">
+          {/* Cột 1: Thumbnail dọc */}
+          <div className="flex flex-col gap-2 items-start w-full min-h-[500px] md:col-span-1 h-full mt-8 md:mt-16">
+            {images.map((img, idx) => (
+              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`border ${currentImageIndex === idx ? 'border-black' : 'border-gray-200'} rounded-sm p-0.5 transition-all bg-white`}> 
+                <img src={img} alt={`Preview ${idx+1}`} className="w-16 h-16 object-contain rounded" />
+              </button>
+            ))}
+          </div>
+          {/* Cột 2: Ảnh lớn */}
+          <div className="flex items-center justify-center w-full min-h-[500px] md:col-span-7 h-full -mt-8 md:-mt-16 -ml-8 md:-ml-16">
+            <img src={images[currentImageIndex]} alt={product.name} className="w-full object-contain rounded-lg" />
+          </div>
+          {/* Cột 3: Thông tin sản phẩm */}
+          <div className="flex flex-col gap-8 h-full justify-start md:col-span-4 md:pl-8 mt-8 md:mt-16">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">{product.name}</h1>
+              <div className="flex gap-2 mb-2">
+                {product.tags?.map((tag, idx) => (
+                  <span key={idx} className={`${tag.color} text-white text-xs font-bold px-2 py-1 rounded-sm`}>{tag.text}</span>
+                ))}
+              </div>
+              <div className="text-2xl text-red-600 font-bold mb-2">{formatPrice(product.price)}</div>
+              {product.originalPrice && (
+                <div className="text-base text-gray-500 line-through mb-2">{formatPrice(product.originalPrice)}</div>
+              )}
+            </div>
+            {/* Chọn màu */}
+            <div>
+              <div className="font-semibold mb-1">Màu sắc:</div>
+              <div className="flex gap-2">
+                {colorOptions.map((c) => (
+                  <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'}`} style={{backgroundColor: c.colorHex}} />
+                ))}
+              </div>
+            </div>
+            {/* Chọn size */}
+            <div>
+              <div className="font-semibold mb-1 flex items-center gap-2">Kích thước:
+                <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
+              </div>
+              <div className="flex gap-2">
+                {sizeOptions.map((s) => (
+                  <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[56px] w-14 px-0 py-2 border rounded-sm text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
+                    {s.size}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Số lượng */}
+            <div>
+              <div className="font-semibold mb-1">Số lượng:</div>
+              <div className="flex items-center border rounded-md w-fit">
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1"><Minus size={16} /></button>
+                <span className="px-4 text-lg">{quantity}</span>
+                <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1"><Plus size={16} /></button>
+              </div>
+            </div>
+            {/* Nút mua */}
+            <div className="flex flex-col gap-2">
+              <button onClick={handleAddToCart} disabled={isOutOfStock} className="w-full bg-black text-white font-bold py-3 rounded-sm hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">THÊM VÀO GIỎ</button>
+              <button disabled={isOutOfStock} className="w-full bg-white border border-black text-black font-bold py-3 rounded-sm hover:bg-gray-100 disabled:bg-gray-200 disabled:cursor-not-allowed">MUA NGAY</button>
+            </div>
+            {/* Thông tin mô tả */}
+            <div className="mt-4">
+              <div className="font-bold mb-2">Thông tin sản phẩm</div>
+              <ul className="text-base text-gray-700 list-disc pl-5 space-y-1">
+                <li>Chất liệu: Cotton cao cấp</li>
+                <li>Form: Unisex</li>
+                <li>Xuất xứ: Việt Nam</li>
+                <li>Hình ảnh chỉ mang tính chất minh họa, sản phẩm thực tế có thể khác đôi chút.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {/* Popup bảng size */}
+        {showSizeTable && (
+          <div className="fixed inset-0 z-[120] bg-black bg-opacity-50 flex items-center justify-center" onClick={() => setShowSizeTable(false)}>
+            <div className="bg-white rounded-lg p-6 max-w-lg w-full relative" onClick={e => e.stopPropagation()}>
+              <button onClick={() => setShowSizeTable(false)} className="absolute top-3 right-3 text-gray-500 hover:text-black"><X size={24} /></button>
+              <h2 className="text-xl font-bold mb-4">Bảng size tham khảo</h2>
+              {sizeTable}
+            </div>
+          </div>
+        )}
+      </div>
+      {/* Sản phẩm liên quan */}
+      <div className="max-w-[1600px] mx-auto mt-12 px-2 md:px-6">
+        {relatedProducts.length > 0 && (
+          <>
+            <h3 className="text-2xl font-bold mb-6">Sản phẩm liên quan</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {relatedProducts.map(rp => (
+                <div key={rp.id} className="bg-white border rounded-lg p-2">
+                  <ProductCard product={rp} onAddToWishlist={() => {}} wishlist={[]} onAddToCart={() => {}} onQuickViewOpen={() => {}} />
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -770,6 +961,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === '/';
 
   const handleQuickViewOpen = (product) => {
     setQuickViewProduct(product);
@@ -924,7 +1117,7 @@ export default function App() {
   };
 
   return (
-    <>
+      <>
       {toastMessage && (
         <div className="fixed top-6 right-6 z-[200] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
           {toastMessage}
@@ -953,7 +1146,7 @@ export default function App() {
       )}
       <style>{style}</style>
       <div className="bg-white min-h-screen pb-12">
-        <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={currentPage !== 'home'} />
+        <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={!isHome} />
         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} onNavigate={setCurrentPage}/>
         <SearchOverlay
           isOpen={isSearchOpen}
@@ -971,9 +1164,13 @@ export default function App() {
         <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} setCurrentPage={setCurrentPage} setIsCartOpen={setIsCartOpen} />
         <QuickViewModalWrapper product={quickViewProduct} onClose={() => setQuickViewProduct(null)} onAddToCart={handleAddToCart} />
         <div className={`transition-filter duration-300 ${isMegaMenuOpen || isCartOpen || quickViewProduct ? 'blur-sm pointer-events-none' : ''}`}> 
-          {currentPage === 'cart' ? (
-            <CartPage cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} onBack={() => setCurrentPage('home')} />
-          ) : renderPage()}
+          <Routes>
+            <Route path="/" element={currentPage === 'cart' ? (
+              <CartPage cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} onBack={() => setCurrentPage('home')} />
+            ) : renderPage()} />
+            <Route path="/product/:id" element={<ProductDetailPage products={products} onAddToCart={handleAddToCart} />} />
+            {/* Có thể thêm các route khác như wishlist, about-us nếu muốn */}
+          </Routes>
           <Footer />
         </div>
         <Marquee />
