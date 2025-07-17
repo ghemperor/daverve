@@ -678,6 +678,7 @@ function QuickViewModalWrapper(props) {
 }
 
 const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => {
+  const navigate = useNavigate();
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   return (
     <div className="max-w-5xl mx-auto pt-24 px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -720,7 +721,7 @@ const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => 
             <span className="text-gray-600">Tổng tiền:</span>
             <span className="font-bold text-red-600 text-xl">{formatPrice(total)}</span>
           </div>
-          <button className="w-full bg-red-600 text-white text-center font-bold py-3 rounded mb-4">THANH TOÁN</button>
+          <button className="w-full bg-red-600 text-white text-center font-bold py-3 rounded mb-4" onClick={() => navigate('/checkout')}>THANH TOÁN</button>
           <div className="flex items-center text-gray-400 text-sm gap-2">
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             <button onClick={onBack} className="hover:underline disabled:opacity-50" style={{color:'#888'}}>
@@ -838,7 +839,7 @@ function ProductDetailPage({ products, onAddToCart }) {
       <div className="max-w-[1600px] mx-auto min-h-screen flex flex-col justify-center py-12 px-2 md:px-6 rounded-xl mt-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 flex-1 items-start">
           {/* Cột 1: Thumbnail dọc */}
-          <div className="flex flex-col gap-2 items-start w-full min-h-[500px] md:col-span-1 h-full mt-8 md:mt-16">
+          <div className="flex flex-col gap-2 items-start w-full min-h-[500px] md:col-span-1 h-full mt-8 md:mt-16 pr-4">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`border ${currentImageIndex === idx ? 'border-black' : 'border-gray-200'} rounded-sm p-0.5 transition-all bg-white`}> 
                 <img src={img} alt={`Preview ${idx+1}`} className="w-16 h-16 object-contain rounded" />
@@ -846,7 +847,7 @@ function ProductDetailPage({ products, onAddToCart }) {
             ))}
           </div>
           {/* Cột 2: Ảnh lớn */}
-          <div className="flex items-center justify-center w-full min-h-[500px] md:col-span-7 h-full -mt-8 md:-mt-16 -ml-8 md:-ml-16">
+          <div className="flex items-center justify-center w-full min-h-[500px] md:col-span-7 h-full -mt-8 md:-mt-16">
             <img src={images[currentImageIndex]} alt={product.name} className="w-full object-contain rounded-lg" />
           </div>
           {/* Cột 3: Thông tin sản phẩm */}
@@ -868,7 +869,7 @@ function ProductDetailPage({ products, onAddToCart }) {
               <div className="font-semibold mb-1">Màu sắc:</div>
               <div className="flex gap-2">
                 {colorOptions.map((c) => (
-                  <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-8 h-8 rounded-full border-2 transition-all ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'}`} style={{backgroundColor: c.colorHex}} />
+                  <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-8 h-8 rounded-full border transition-all ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'}`} style={{backgroundColor: c.colorHex}} />
                 ))}
               </div>
             </div>
@@ -916,7 +917,7 @@ function ProductDetailPage({ products, onAddToCart }) {
           <div className="fixed inset-0 z-[120] bg-black bg-opacity-50 flex items-center justify-center" onClick={() => setShowSizeTable(false)}>
             <div className="bg-white rounded-lg p-6 max-w-lg w-full relative" onClick={e => e.stopPropagation()}>
               <button onClick={() => setShowSizeTable(false)} className="absolute top-3 right-3 text-gray-500 hover:text-black"><X size={24} /></button>
-              <h2 className="text-xl font-bold mb-4">Bảng size tham khảo</h2>
+              <h2 className="text-xl font-bold mb-4">BẢNG SIZE</h2>
               {sizeTable}
             </div>
           </div>
@@ -938,6 +939,133 @@ function ProductDetailPage({ products, onAddToCart }) {
         )}
       </div>
     </>
+  );
+}
+
+function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
+  const navigate = useNavigate();
+  const [shippingInfo, setShippingInfo] = React.useState({
+    name: '', phone: '', email: '', address: '', ward: '', city: '', country: 'Vietnam',
+  });
+  const [paymentMethod, setPaymentMethod] = React.useState('cod');
+  const [discountCode, setDiscountCode] = React.useState('');
+  const [note, setNote] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [success, setSuccess] = React.useState(false);
+
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shippingFee = 0; // Placeholder
+  const finalTotal = total + shippingFee;
+
+  const handleOrder = () => {
+    if (!shippingInfo.name || !shippingInfo.phone || !shippingInfo.address) {
+      setError('Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ giao hàng.');
+      return;
+    }
+    setError('');
+    setSuccess(true);
+    setToastMessage && setToastMessage('Đặt hàng thành công!');
+    setCartItems && setCartItems([]);
+    setTimeout(() => {
+      setSuccess(false);
+      setToastMessage && setToastMessage('');
+      navigate('/');
+    }, 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-white py-8 px-2 md:px-0 font-sans overflow-x-auto pt-24 md:pt-20" style={{fontFamily: 'Roboto Condensed, sans-serif'}}>
++      {/* Brand/Logo */}
++      <div className="w-full flex flex-col items-center mb-8">
++        <span className="text-4xl font-extrabold tracking-widest text-black mb-2" style={{letterSpacing:'0.15em'}}>MEVY</span>
++      </div>
+      <div className="max-w-6xl w-full mx-auto flex flex-col md:flex-row gap-4 md:gap-8">
+        {/* Left: Form */}
+        <div className="flex-1 min-w-0 mx-auto md:mx-0">
+          {/* Thông tin giao hàng */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-6 text-gray-800">Thông tin giao hàng</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập họ và tên" value={shippingInfo.name} onChange={e => setShippingInfo({...shippingInfo, name: e.target.value})} />
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập số điện thoại" value={shippingInfo.phone} onChange={e => setShippingInfo({...shippingInfo, phone: e.target.value})} />
+            </div>
+            <div className="mb-4">
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập email" value={shippingInfo.email} onChange={e => setShippingInfo({...shippingInfo, email: e.target.value})} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Tỉnh/TP" value={shippingInfo.city} onChange={e => setShippingInfo({...shippingInfo, city: e.target.value})} />
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Quận/Huyện" value={shippingInfo.district} onChange={e => setShippingInfo({...shippingInfo, district: e.target.value})} />
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Phường/Xã" value={shippingInfo.ward} onChange={e => setShippingInfo({...shippingInfo, ward: e.target.value})} />
+            </div>
+            <div className="mb-4">
+              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Địa chỉ nhà, Đường cụ thể" value={shippingInfo.address} onChange={e => setShippingInfo({...shippingInfo, address: e.target.value})} />
+            </div>
+          </div>
+          {/* Phương thức giao hàng */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-4 text-gray-800">Phương thức giao hàng</h2>
+            <input className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-500" placeholder="Nhập địa chỉ để xem các phương thức giao hàng" disabled />
+          </div>
+          {/* Phương thức thanh toán */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-4 text-gray-800">Phương thức thanh toán</h2>
+            <label className="flex items-center gap-2 cursor-pointer text-gray-700">
+              <input type="radio" checked={paymentMethod==='cod'} onChange={()=>setPaymentMethod('cod')} className="accent-black" />
+              <span className="inline-flex items-center gap-1"><span role="img" aria-label="cod">💵</span> Thanh toán khi nhận hàng (COD)</span>
+            </label>
+          </div>
+          {/* Ghi chú và lỗi */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6">
+            <textarea className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Ghi chú đơn hàng" value={note} onChange={e => setNote(e.target.value)} />
+            {error && <div className="text-red-600 mt-2 font-semibold text-sm">{error}</div>}
+            {success && <div className="text-green-600 mt-2 font-semibold text-sm">Đặt hàng thành công!</div>}
+          </div>
+        </div>
+        {/* Right: Cart & Summary */}
+        <div className="w-full md:max-w-md flex-shrink-0 mx-auto md:mx-0">
+          {/* Giỏ hàng */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-4 text-gray-800">Giỏ hàng</h2>
+            <div className="space-y-4">
+              {cartItems.map(item => (
+                <div key={item.id} className="flex gap-3 items-center border-b border-gray-200 pb-3 last:border-b-0">
+                  <img src={item.imageUrl} alt={item.name} className="w-14 h-14 object-contain rounded border border-gray-200" />
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm text-gray-900">{item.name}</div>
+                    <div className="text-xs text-gray-500">{item.size} / {item.colorName}</div>
+                    {item.originalPrice && (
+                      <div className="text-xs text-gray-400 line-through">{formatPrice(item.originalPrice)}</div>
+                    )}
+                    <div className="text-sm text-gray-900 font-bold">{formatPrice(item.price)}</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <button className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white" disabled>-</button>
+                    <span className="px-2 text-gray-900">{item.quantity}</span>
+                    <button className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white" disabled>+</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Mã khuyến mãi */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-4 text-gray-800">Mã khuyến mãi</h2>
+            <div className="flex gap-2 mb-2">
+              <input className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập mã khuyến mãi" value={discountCode} onChange={e => setDiscountCode(e.target.value)} />
+              <button className="px-4 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 transition shadow-sm">Áp dụng</button>
+            </div>
+          </div>
+          {/* Tóm tắt đơn hàng */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+            <h2 className="font-bold text-xl mb-4 text-gray-800">Tóm tắt đơn hàng</h2>
+            <div className="flex justify-between text-base mb-2 text-gray-700"><span>Tổng tiền hàng</span><span>{formatPrice(total)}</span></div>
+            <div className="flex justify-between text-base mb-2 text-gray-700"><span>Phí vận chuyển</span><span>{shippingFee === 0 ? '-' : formatPrice(shippingFee)}</span></div>
+            <div className="flex justify-between text-lg font-bold mb-6 text-gray-900"><span>Tổng thanh toán</span><span>{formatPrice(finalTotal)}</span></div>
+            <button className="w-full py-3 rounded-2xl bg-black text-white font-semibold text-lg hover:bg-gray-800 transition shadow-sm" onClick={handleOrder} disabled={success}>Đặt hàng</button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1169,6 +1297,7 @@ export default function App() {
               <CartPage cartItems={cartItems} onUpdateQuantity={handleUpdateQuantity} onRemoveFromCart={handleRemoveFromCart} onBack={() => setCurrentPage('home')} />
             ) : renderPage()} />
             <Route path="/product/:id" element={<ProductDetailPage products={products} onAddToCart={handleAddToCart} />} />
+            <Route path="/checkout" element={<CheckoutPage cartItems={cartItems} onBack={() => setCurrentPage('cart')} setCartItems={setCartItems} setToastMessage={setToastMessage} />} />
             {/* Có thể thêm các route khác như wishlist, about-us nếu muốn */}
           </Routes>
           <Footer />
