@@ -1285,6 +1285,7 @@ export default function App() {
 
   return (
       <>
+      <ScrollToTop />
       {toastMessage && (
         <div className="fixed top-6 right-6 z-[200] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
           {toastMessage}
