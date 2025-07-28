@@ -187,6 +187,10 @@ const SizeChatBot = ({ products = [] }) => {
     }
   };
 
+  const handleViewDetail = (productId) => {
+    window.open(`/product/${productId}`, '_blank');
+  };
+
   const suggestedQuestions = [
     "Tôi nên mặc size gì nếu cao 1m65 nặng 55kg?",
     "Da ngăm nên mặc màu gì cho đẹp?",
@@ -318,6 +322,12 @@ const SizeChatBot = ({ products = [] }) => {
                         <div className="flex-1">
                           <div className="text-xs font-bold text-black line-clamp-1">{p.name}</div>
                           <div className="text-xs text-gray-500">{p.price}₫</div>
+                          <button
+                            className="mt-1 text-xs text-blue-600 underline hover:text-blue-800 transition-colors"
+                            onClick={() => handleViewDetail(p.id)}
+                          >
+                            Xem chi tiết
+                          </button>
                         </div>
                       </div>
                     ))}
