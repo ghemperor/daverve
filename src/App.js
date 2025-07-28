@@ -3,6 +3,7 @@ import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mai
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import ScrollToTop from './ScrollToTop';
 import SizeChatBot from './SizeChatBot';
+import Select from 'react-select';
 
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
@@ -983,16 +984,79 @@ function ProductDetailPage({ products, onAddToCart }) {
   );
 }
 
+// Dữ liệu địa chỉ mẫu
+const addressData = {
+  'Hà Nội': {
+    'Ba Đình': ['Phúc Xá', 'Trúc Bạch', 'Vĩnh Phúc'],
+    'Hoàn Kiếm': ['Chương Dương', 'Hàng Bạc', 'Hàng Buồm'],
+    'Cầu Giấy': ['Dịch Vọng', 'Nghĩa Đô', 'Quan Hoa']
+  },
+  'TP.HCM': {
+    'Quận 1': ['Bến Nghé', 'Bến Thành', 'Cầu Kho'],
+    'Quận 3': ['Phường 1', 'Phường 2', 'Phường 3'],
+    'Quận 7': ['Tân Phong', 'Tân Quy', 'Phú Mỹ']
+  }
+};
+
+// Hook fetch địa chỉ động
+function useVietnamAddress() {
+  const [provinces, setProvinces] = React.useState([]);
+  const [districts, setDistricts] = React.useState([]);
+  const [wards, setWards] = React.useState([]);
+  const [loadingProvinces, setLoadingProvinces] = React.useState(false);
+  const [loadingDistricts, setLoadingDistricts] = React.useState(false);
+  const [loadingWards, setLoadingWards] = React.useState(false);
+
+  const fetchProvinces = React.useCallback(() => {
+    setLoadingProvinces(true);
+    fetch('https://provinces.open-api.vn/api/p/')
+      .then(res => res.json())
+      .then(data => setProvinces(data))
+      .finally(() => setLoadingProvinces(false));
+  }, []);
+
+  const fetchDistricts = React.useCallback((provinceCode) => {
+    setLoadingDistricts(true);
+    fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+      .then(res => res.json())
+      .then(data => setDistricts(data.districts || []))
+      .finally(() => setLoadingDistricts(false));
+  }, []);
+
+  const fetchWards = React.useCallback((districtCode) => {
+    setLoadingWards(true);
+    fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+      .then(res => res.json())
+      .then(data => setWards(data.wards || []))
+      .finally(() => setLoadingWards(false));
+  }, []);
+
+  return {
+    provinces, districts, wards,
+    fetchProvinces, fetchDistricts, fetchWards,
+    loadingProvinces, loadingDistricts, loadingWards
+  };
+}
+
 function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
   const navigate = useNavigate();
   const [shippingInfo, setShippingInfo] = React.useState({
-    name: '', phone: '', email: '', address: '', ward: '', city: '', country: 'Vietnam',
+    name: '', phone: '', email: '', address: '', ward: '', district: '', city: '', country: 'Vietnam',
   });
   const [paymentMethod, setPaymentMethod] = React.useState('cod');
   const [discountCode, setDiscountCode] = React.useState('');
   const [note, setNote] = React.useState('');
   const [error, setError] = React.useState('');
   const [success, setSuccess] = React.useState(false);
+  // Địa chỉ động
+  const [selectedProvince, setSelectedProvince] = React.useState('');
+  const [selectedDistrict, setSelectedDistrict] = React.useState('');
+  const [selectedWard, setSelectedWard] = React.useState('');
+  const {
+    provinces, districts, wards,
+    fetchProvinces, fetchDistricts, fetchWards,
+    loadingProvinces, loadingDistricts, loadingWards
+  } = useVietnamAddress();
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingFee = 0; // Placeholder
@@ -1014,6 +1078,73 @@ function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
     }, 2000);
   };
 
+  React.useEffect(() => { fetchProvinces(); }, [fetchProvinces]);
+  React.useEffect(() => {
+    if (selectedProvince) {
+      fetchDistricts(selectedProvince);
+      setSelectedDistrict('');
+      setSelectedWard('');
+      setShippingInfo(info => ({ ...info, city: provinces.find(p => p.code === selectedProvince)?.name || '', district: '', ward: '' }));
+    } else {
+      setSelectedDistrict(''); setSelectedWard('');
+      setShippingInfo(info => ({ ...info, city: '', district: '', ward: '' }));
+    }
+    // eslint-disable-next-line
+  }, [selectedProvince]);
+  React.useEffect(() => {
+    if (selectedDistrict) {
+      fetchWards(selectedDistrict);
+      setSelectedWard('');
+      setShippingInfo(info => ({ ...info, district: districts.find(d => d.code === selectedDistrict)?.name || '', ward: '' }));
+    } else {
+      setSelectedWard('');
+      setShippingInfo(info => ({ ...info, district: '', ward: '' }));
+    }
+    // eslint-disable-next-line
+  }, [selectedDistrict]);
+  React.useEffect(() => {
+    if (selectedWard) {
+      setShippingInfo(info => ({ ...info, ward: wards.find(w => w.code === selectedWard)?.name || '' }));
+    } else {
+      setShippingInfo(info => ({ ...info, ward: '' }));
+    }
+    // eslint-disable-next-line
+  }, [selectedWard]);
+
+  // Helper chuyển dữ liệu về dạng options cho react-select
+  const provinceOptions = provinces.map(p => ({ value: p.code, label: p.name }));
+  const districtOptions = districts.map(d => ({ value: d.code, label: d.name }));
+  const wardOptions = wards.map(w => ({ value: w.code, label: w.name }));
+
+  // Style cho react-select
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      borderRadius: '0.75rem',
+      borderColor: state.isFocused ? '#000' : '#D1D5DB',
+      boxShadow: state.isFocused ? '0 0 0 2px #0001' : 'none',
+      minHeight: '48px',
+      height: '48px',
+      paddingLeft: 2,
+      fontSize: '1rem',
+      background: '#fff',
+      transition: 'border-color 0.2s',
+    }),
+    option: (base, state) => ({
+      ...base,
+      fontSize: '1rem',
+      background: state.isSelected ? '#111827' : state.isFocused ? '#F3F4F6' : '#fff',
+      color: state.isSelected ? '#fff' : '#111827',
+      cursor: 'pointer',
+    }),
+    menu: base => ({ ...base, borderRadius: '0.75rem', zIndex: 20 }),
+    singleValue: base => ({ ...base, color: '#111827' }),
+    placeholder: base => ({ ...base, color: '#9CA3AF', fontSize: '1rem' }),
+    input: base => ({ ...base, fontSize: '1rem' }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    dropdownIndicator: base => ({ ...base, color: '#6B7280', paddingRight: 12 }),
+  };
+
   return (
     <div className="min-h-screen bg-white py-8 px-2 md:px-0 font-sans overflow-x-auto pt-24 md:pt-20" style={{fontFamily: 'Roboto Condensed, sans-serif'}}>
       <div className="w-full flex flex-col items-center mb-8">
@@ -1023,7 +1154,7 @@ function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
         {/* Left: Form */}
         <div className="flex-1 min-w-0 mx-auto md:mx-0">
           {/* Thông tin giao hàng */}
-          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6 max-w-4xl mx-auto">
             <h2 className="font-bold text-xl mb-6 text-gray-800">Thông tin giao hàng</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập họ và tên" value={shippingInfo.name} onChange={e => setShippingInfo({...shippingInfo, name: e.target.value})} />
@@ -1032,10 +1163,48 @@ function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
             <div className="mb-4">
               <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Nhập email" value={shippingInfo.email} onChange={e => setShippingInfo({...shippingInfo, email: e.target.value})} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Tỉnh/TP" value={shippingInfo.city} onChange={e => setShippingInfo({...shippingInfo, city: e.target.value})} />
-              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Quận/Huyện" value={shippingInfo.district} onChange={e => setShippingInfo({...shippingInfo, district: e.target.value})} />
-              <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Phường/Xã" value={shippingInfo.ward} onChange={e => setShippingInfo({...shippingInfo, ward: e.target.value})} />
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mb-4">
+              <div className="md:col-span-5">
+                <Select
+                  className="w-full"
+                  styles={selectStyles}
+                  isLoading={loadingProvinces}
+                  isClearable
+                  placeholder="Chọn Tỉnh/Thành phố"
+                  options={provinceOptions}
+                  value={provinceOptions.find(opt => opt.value === selectedProvince) || null}
+                  onChange={opt => setSelectedProvince(opt ? opt.value : '')}
+                  noOptionsMessage={() => 'Không tìm thấy'}
+                />
+              </div>
+              <div className="md:col-span-4">
+                <Select
+                  className="w-full"
+                  styles={selectStyles}
+                  isLoading={loadingDistricts}
+                  isClearable
+                  placeholder="Chọn Quận/Huyện"
+                  options={districtOptions}
+                  value={districtOptions.find(opt => opt.value === selectedDistrict) || null}
+                  onChange={opt => setSelectedDistrict(opt ? opt.value : '')}
+                  isDisabled={!selectedProvince || loadingDistricts}
+                  noOptionsMessage={() => 'Không tìm thấy'}
+                />
+              </div>
+              <div className="md:col-span-3">
+                <Select
+                  className="w-full"
+                  styles={selectStyles}
+                  isLoading={loadingWards}
+                  isClearable
+                  placeholder="Chọn Phường/Xã"
+                  options={wardOptions}
+                  value={wardOptions.find(opt => opt.value === selectedWard) || null}
+                  onChange={opt => setSelectedWard(opt ? opt.value : '')}
+                  isDisabled={!selectedDistrict || loadingWards}
+                  noOptionsMessage={() => 'Không tìm thấy'}
+                />
+              </div>
             </div>
             <div className="mb-4">
               <input className="w-full border border-gray-300 rounded-xl px-4 py-3 text-black bg-white focus:border-black focus:ring-1 focus:ring-black transition" placeholder="Địa chỉ nhà, Đường cụ thể" value={shippingInfo.address} onChange={e => setShippingInfo({...shippingInfo, address: e.target.value})} />
@@ -1131,6 +1300,7 @@ export default function App() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const navigate = useNavigate();
 
   const handleQuickViewOpen = (product) => {
     setQuickViewProduct(product);
@@ -1308,8 +1478,8 @@ export default function App() {
             <span className="font-bold text-base text-black">{formatPrice(lastAddedItem.price * lastAddedItem.quantity)}</span>
           </div>
           <div className="flex gap-2 px-4 pb-4">
-            <button onClick={() => { setCurrentPage('cart'); setShowCartBubble(false); }} className="flex-1 bg-gray-200 text-black font-bold py-2 rounded hover:bg-gray-300">XEM GIỎ HÀNG</button>
-            <button onClick={() => { setCurrentPage('cart'); setShowCartBubble(false); }} className="flex-1 bg-black text-white font-bold py-2 rounded hover:bg-gray-800">THANH TOÁN</button>
+            <button onClick={() => { setCurrentPage('cart'); navigate('/'); setShowCartBubble(false); }} className="flex-1 bg-gray-200 text-black font-bold py-2 rounded hover:bg-gray-300">XEM GIỎ HÀNG</button>
+            <button onClick={() => { setCurrentPage('cart'); navigate('/'); setShowCartBubble(false); }} className="flex-1 bg-black text-white font-bold py-2 rounded hover:bg-gray-800">THANH TOÁN</button>
           </div>
         </div>
       )}
