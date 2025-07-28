@@ -2,6 +2,7 @@
 import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import ScrollToTop from './ScrollToTop';
+import SizeChatBot from './SizeChatBot';
 
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
@@ -1343,6 +1344,7 @@ export default function App() {
           <Footer />
         </div>
         <Marquee />
+        <SizeChatBot products={products} />
       </div>
     </>
   );
