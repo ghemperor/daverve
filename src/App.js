@@ -1048,7 +1048,7 @@ const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => 
             <div className="space-y-6">
               {cartItems.length > 0 ? cartItems.map(item => (
                 <div key={item.id} className="flex items-center gap-4 border-b pb-4">
-                  <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-contain rounded-md border" />
+                  <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-contain rounded-md" />
                   <div className="flex-1">
                     <div className="font-bold uppercase">{item.name}</div>
                     <div className="text-sm text-gray-500">{formatPrice(item.price)}</div>
@@ -1199,18 +1199,18 @@ function ProductDetailPage({ products, onAddToCart }) {
   // UI
   return (
     <div className="min-h-screen bg-white pt-28 flex justify-center">
-      <div className="w-full max-w-screen-2xl px-2 md:px-16 flex flex-col md:flex-row items-start gap-4 md:gap-16">
+      <div className="w-full max-w-screen-lg px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-start gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white">
         {/* Cụm thumbnail + ảnh sản phẩm */}
-        <div className="flex flex-row items-start gap-2 w-full md:w-3/4">
+        <div className="flex flex-row items-start gap-2 w-full md:w-3/5 max-w-[520px] mx-auto md:mx-0">
           <div className="hidden md:flex flex-col gap-4 items-start justify-start">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-24 h-24 object-contain rounded" />
+                <img src={img} alt={`Preview ${idx+1}`} className="w-20 h-20 object-contain rounded" />
               </button>
             ))}
           </div>
-          <div className="flex flex-col items-center justify-start w-auto max-w-[900px] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[1100px] w-auto bg-white" style={{maxWidth:'100%', minHeight:'800px'}} />
+          <div className="flex flex-col items-center justify-start w-auto max-w-[400px] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
+            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[500px] w-full bg-white" style={{maxWidth:'100%', minHeight:'320px'}} />
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
               onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
@@ -1229,25 +1229,25 @@ function ProductDetailPage({ products, onAddToCart }) {
           </div>
         </div>
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-1/3 max-w-lg flex flex-col gap-4 justify-start pt-0">
+        <div className="w-full md:w-2/5 max-w-md flex flex-col gap-4 justify-start pt-0 mx-auto md:mx-0">
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
-          <div className="flex md:hidden gap-4 items-center mb-2">
+          <div className="flex md:hidden gap-4 items-center mb-2 justify-center">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-16 h-16 object-contain rounded" />
+                <img src={img} alt={`Preview ${idx+1}`} className="w-14 h-14 object-contain rounded" />
               </button>
             ))}
           </div>
           {/* Tên sản phẩm */}
-          <div className="text-3xl font-extrabold uppercase mb-2 tracking-tight">{product.name}</div>
-          <div className="text-xl font-bold mb-2">{formatPrice(product.price)}</div>
+          <div className="text-2xl md:text-3xl font-extrabold uppercase mb-2 tracking-tight break-words">{product.name}</div>
+          <div className="text-lg md:text-xl font-bold mb-2">{formatPrice(product.price)}</div>
           {product.originalPrice && (
             <div className="text-base text-gray-500 line-through mb-2">{formatPrice(product.originalPrice)}</div>
           )}
           {/* Chọn màu */}
           <div className="mb-1">
             <div className="font-bold text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {colorOptions.map((c, idx) => (
                 <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-6 h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
               ))}
@@ -1259,9 +1259,9 @@ function ProductDetailPage({ products, onAddToCart }) {
               <div className="font-bold text-sm tracking-widest">KÍCH THƯỚC</div>
               <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {sizeOptions.map((s) => (
-                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[56px] w-14 px-0 py-2 border rounded text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
+                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[44px] w-12 px-0 py-2 border rounded text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
                   {s.size}
                 </button>
               ))}
@@ -1276,8 +1276,6 @@ function ProductDetailPage({ products, onAddToCart }) {
               <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1">+</button>
             </div>
           </div>
-          {/* Divider duy nhất giữa vận chuyển & đổi trả và mô tả sản phẩm */}
-          {/* <div className="border-b border-black w-full mx-0" /> */}
           {/* Shipping & Returns */}
           <div className="border-t border-black w-full mx-0">
             <div className="font-bold text-lg tracking-widest mt-4 mb-2">VẬN CHUYỂN & ĐỔI TRẢ</div>
@@ -1287,8 +1285,6 @@ function ProductDetailPage({ products, onAddToCart }) {
               Đóng gói quà tặng bao gồm hộp signature của shop.
             </div>
           </div>
-          {/* Divider */}
-          {/* <div className="border-b border-black my-1 w-full mx-0" /> */}
           {/* Collapsible Description */}
           <div className="border-t border-black w-full mx-0">
             <button className="flex items-center gap-2 font-extrabold text-lg uppercase tracking-widest mt-4 mb-2" onClick={() => setShowDesc(v => !v)}>
