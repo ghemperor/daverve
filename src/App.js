@@ -298,7 +298,7 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
 
     return (
         <div className="group text-left cursor-pointer" onClick={handleCardClick} role="button" tabIndex="0" aria-label={`Xem chi tiết sản phẩm ${product.name}`} onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}>
-          <div className="relative rounded-lg mb-2 sm:mb-4 overflow-hidden aspect-[3/4] bg-gray-100">
+          <div className="relative rounded-lg mb-2 sm:mb-4 overflow-hidden aspect-[3/4] bg-white">
             {isCompletelyOutOfStock && (
                 <button onClick={handleWishlistClick} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
                     <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'text-red-500 fill-current' : 'text-black'}`} />
