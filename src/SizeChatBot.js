@@ -57,19 +57,50 @@ async function askGeminiV3(question) {
   }
 }
 
+// Helper function to format timestamp safely
+const formatTimestamp = (timestamp) => {
+  try {
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
+    return date.toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return new Date().toLocaleTimeString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+};
+
 const SizeChatBot = ({ products = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useLocalStorage('chatHistory', [
+  
+  // Default message with proper timestamp
+  const defaultMessages = [
     {
       id: 1,
       type: 'bot',
       text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     }
-  ]);
+  ];
+  
+  const [messages, setMessages] = useLocalStorage('chatHistory', defaultMessages);
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Reset chat function
+  const resetChat = () => {
+    setMessages(defaultMessages);
+    setConversationContext({
+      userHeight: null,
+      userWeight: null,
+      preferredStyles: [],
+      previousRecommendations: []
+    });
+  };
   const [conversationContext, setConversationContext] = useLocalStorage('chatContext', {
     userHeight: null,
     userWeight: null,
@@ -112,12 +143,12 @@ const SizeChatBot = ({ products = [] }) => {
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const userMessage = {
-      id: messages.length + 1,
-      type: 'user',
-      text: inputText,
-      timestamp: new Date()
-    };
+          const userMessage = {
+        id: messages.length + 1,
+        type: 'user',
+        text: inputText,
+        timestamp: new Date().toISOString()
+      };
 
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
@@ -130,7 +161,7 @@ const SizeChatBot = ({ products = [] }) => {
         id: messages.length + 2,
         type: 'bot',
         text: botReply,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, botMessage]);
       // Sau khi bot trả lời, thử gợi ý sản phẩm
@@ -222,7 +253,7 @@ const SizeChatBot = ({ products = [] }) => {
         // Lưu recommendation vào context
         newContext.previousRecommendations.push({
           size: recommendedSize,
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           height,
           weight
         });
@@ -310,15 +341,27 @@ const SizeChatBot = ({ products = [] }) => {
                 <p className="text-xs text-gray-300">Hỗ trợ 24/7</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="ml-2 p-1 rounded hover:bg-white/20 transition-colors"
-              aria-label="Đóng chat"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={resetChat}
+                className="p-1 rounded hover:bg-white/20 transition-colors"
+                aria-label="Reset chat"
+                title="Reset cuộc trò chuyện"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded hover:bg-white/20 transition-colors"
+                aria-label="Đóng chat"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -341,7 +384,7 @@ const SizeChatBot = ({ products = [] }) => {
                             id: messages.length + 1,
                             type: 'user',
                             text: q,
-                            timestamp: new Date()
+                            timestamp: new Date().toISOString()
                           };
                           setMessages(prev => [...prev, userMessage]);
                           setIsLoading(true);
@@ -350,7 +393,7 @@ const SizeChatBot = ({ products = [] }) => {
                             id: messages.length + 2,
                             type: 'bot',
                             text: botReply,
-                            timestamp: new Date()
+                            timestamp: new Date().toISOString()
                           };
                           setMessages(prev => [...prev, botMessage]);
                           setIsLoading(false);
@@ -378,10 +421,7 @@ const SizeChatBot = ({ products = [] }) => {
                 >
                   <p className="text-sm whitespace-pre-line">{message.text}</p>
                   <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString('vi-VN', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatTimestamp(message.timestamp)}
                   </p>
                 </div>
               </div>
