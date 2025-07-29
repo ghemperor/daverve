@@ -148,35 +148,45 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
         }
     }, [product.imageUrl, product.imageUrlBack]);
     
-    const isInWishlist = wishlist.includes(product.id);
+    const isInWishlist = useMemo(() => wishlist.includes(product.id), [wishlist, product.id]);
 
-    const isSale = product.originalPrice && product.price;
-    let salePercentage = 0;
-    if (isSale) {
-        if (product.originalPrice > 0) {
+    const saleInfo = useMemo(() => {
+        const isSale = product.originalPrice && product.price;
+        let salePercentage = 0;
+        if (isSale && product.originalPrice > 0) {
             salePercentage = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
         }
-    }
+        return { isSale, salePercentage };
+    }, [product.originalPrice, product.price]);
 
-    const handleAddToCartClick = (e) => {
+    const firstAvailableVariant = useMemo(() => 
+        product.variants.find(v => v.inStock), 
+        [product.variants]
+    );
+
+    const handleAddToCartClick = useCallback((e) => {
         e.stopPropagation();
-        const firstAvailableVariant = product.variants.find(v => v.inStock);
         if (firstAvailableVariant) {
             onAddToCart(product, firstAvailableVariant);
         }
-    };
+    }, [firstAvailableVariant, onAddToCart, product]);
+
+    const handleWishlistClick = useCallback((e) => {
+        e.stopPropagation();
+        onAddToWishlist(product.id);
+    }, [onAddToWishlist, product.id]);
 
     // Thêm navigate
     const navigate = useNavigate();
-    const handleCardClick = () => {
+    const handleCardClick = useCallback(() => {
       navigate(`/product/${product.id}`);
-    };
+    }, [navigate, product.id]);
 
     return (
         <div className="group text-left cursor-pointer" onClick={handleCardClick} role="button" tabIndex="0" aria-label={`Xem chi tiết sản phẩm ${product.name}`} onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}>
           <div className="relative rounded-lg mb-3 overflow-hidden aspect-[3/4] bg-gray-100">
             {hasOutOfStockSize && (
-                <button onClick={e => { e.stopPropagation(); onAddToWishlist(product.id); }} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
+                <button onClick={handleWishlistClick} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
                     <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'text-red-500 fill-current' : 'text-black'}`} />
                 </button>
             )}
@@ -214,11 +224,11 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
               <h3 className="text-sm font-bold text-gray-800 truncate w-full uppercase" title={product.name}>
                   {product.name}
               </h3>
-              {isSale ? (
+              {saleInfo.isSale ? (
                 <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm text-red-600 font-bold">{formatPrice(product.price)}</p>
                     <p className="text-xs text-gray-500 line-through">{formatPrice(product.originalPrice)}</p>
-                    <p className="text-xs text-red-600">(-{salePercentage}%)</p>
+                    <p className="text-xs text-red-600">(-{saleInfo.salePercentage}%)</p>
                 </div>
               ) : (
                 <p className="text-sm text-gray-600 mt-1">{formatPrice(product.price)}</p>
@@ -1133,6 +1143,8 @@ function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
   const [note, setNote] = React.useState('');
   const [error, setError] = React.useState('');
   const [success, setSuccess] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState({});
   // Địa chỉ động
   const [selectedProvince, setSelectedProvince] = React.useState('');
   const [selectedDistrict, setSelectedDistrict] = React.useState('');
@@ -1147,20 +1159,76 @@ function CheckoutPage({ cartItems, onBack, setCartItems, setToastMessage }) {
   const shippingFee = 0; // Placeholder
   const finalTotal = total + shippingFee;
 
-  const handleOrder = () => {
-    if (!shippingInfo.name || !shippingInfo.phone || !shippingInfo.address) {
-      setError('Vui lòng nhập đầy đủ họ tên, số điện thoại và địa chỉ giao hàng.');
-      return;
+  // Enhanced form validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!shippingInfo.name.trim()) {
+      errors.name = 'Vui lòng nhập họ tên';
     }
-    setError('');
-    setSuccess(true);
-    setToastMessage && setToastMessage('Đặt hàng thành công!');
-    setCartItems && setCartItems([]);
-    setTimeout(() => {
-      setSuccess(false);
-      setToastMessage && setToastMessage('');
-      navigate('/');
-    }, 2000);
+    
+    if (!shippingInfo.phone.trim()) {
+      errors.phone = 'Vui lòng nhập số điện thoại';
+    } else if (!/^[0-9]{10,11}$/.test(shippingInfo.phone.replace(/\s/g, ''))) {
+      errors.phone = 'Số điện thoại không hợp lệ';
+    }
+    
+    if (!shippingInfo.email.trim()) {
+      errors.email = 'Vui lòng nhập email';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shippingInfo.email)) {
+      errors.email = 'Email không hợp lệ';
+    }
+    
+    if (!shippingInfo.address.trim()) {
+      errors.address = 'Vui lòng nhập địa chỉ giao hàng';
+    }
+    
+    if (!selectedProvince) {
+      errors.city = 'Vui lòng chọn tỉnh/thành phố';
+    }
+    
+    if (!selectedDistrict) {
+      errors.district = 'Vui lòng chọn quận/huyện';
+    }
+    
+    return errors;
+  };
+
+  const handleOrder = async () => {
+    if (isSubmitting) return;
+    
+    try {
+      setIsSubmitting(true);
+      const errors = validateForm();
+      
+      if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        setError('Vui lòng kiểm tra lại thông tin đã nhập');
+        return;
+      }
+      
+      setFieldErrors({});
+      setError('');
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setSuccess(true);
+      setToastMessage && setToastMessage('Đặt hàng thành công!');
+      setCartItems && setCartItems([]);
+      
+      setTimeout(() => {
+        setSuccess(false);
+        setToastMessage && setToastMessage('');
+        navigate('/');
+      }, 2000);
+      
+    } catch (error) {
+      setError('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+      console.error('Order error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   React.useEffect(() => { fetchProvinces(); }, [fetchProvinces]);
@@ -1447,9 +1515,29 @@ export default function App() {
   // };
 
 
-  const toggleWishlist = (productId) => {
-    setWishlist(prev => prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]);
-  };
+  const toggleWishlist = useCallback((productId) => {
+    try {
+      setWishlist(prev => {
+        const isInWishlist = prev.includes(productId);
+        const newWishlist = isInWishlist 
+          ? prev.filter(id => id !== productId) 
+          : [...prev, productId];
+        
+        // Show feedback message
+        const message = isInWishlist 
+          ? 'Đã xóa khỏi danh sách yêu thích' 
+          : 'Đã thêm vào danh sách yêu thích';
+        setToastMessage(message);
+        setTimeout(() => setToastMessage(''), 2000);
+        
+        return newWishlist;
+      });
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      setToastMessage('Có lỗi xảy ra khi cập nhật danh sách yêu thích');
+      setTimeout(() => setToastMessage(''), 3000);
+    }
+  }, [setWishlist, setToastMessage]);
 
   const filteredProducts = useMemo(() => {
       let sortableProducts = [...products].filter(p => 
