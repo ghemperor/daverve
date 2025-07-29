@@ -118,10 +118,6 @@ const formatPrice = (price) => {
 
 // Sửa ProductCard để click vào ảnh sẽ chuyển route
 const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQuickViewOpen }) => {
-    const hasOutOfStockSize = useMemo(() => {
-        return product.variants.some(s => !s.inStock);
-    }, [product.variants]);
-    
     const isCompletelyOutOfStock = useMemo(() => {
         return product.variants.every(v => !v.inStock);
     }, [product.variants]);
@@ -185,7 +181,7 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
     return (
         <div className="group text-left cursor-pointer" onClick={handleCardClick} role="button" tabIndex="0" aria-label={`Xem chi tiết sản phẩm ${product.name}`} onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}>
           <div className="relative rounded-lg mb-3 overflow-hidden aspect-[3/4] bg-gray-100">
-            {hasOutOfStockSize && (
+            {isCompletelyOutOfStock && (
                 <button onClick={handleWishlistClick} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
                     <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'text-red-500 fill-current' : 'text-black'}`} />
                 </button>
@@ -295,7 +291,7 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
         if (showSolidHeader) return 'text-black';
         
         // For transparent header, detect page background
-        const isOnLightBackground = currentPage === 'cart' || currentPage === 'checkout' || 
+        const isOnLightBackground = currentPage === 'cart' || currentPage === 'checkout' || currentPage === 'wishlist' ||
                                    location.pathname === '/checkout' || 
                                    (location.pathname === '/' && currentPage === 'cart');
         
