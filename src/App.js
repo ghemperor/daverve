@@ -476,7 +476,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFro
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <button onClick={() => { setCurrentPage('cart'); setIsCartOpen(false); }} className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300">XEM GIỎ HÀNG</button>
-                            <button className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800">THANH TOÁN</button>
+                            <button onClick={() => { setCurrentPage('checkout'); setIsCartOpen(false); }} className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800">THANH TOÁN</button>
                         </div>
                     </div>
                 )}
@@ -1495,8 +1495,8 @@ export default function App() {
             <span className="font-bold text-base text-black">{formatPrice(lastAddedItem.price * lastAddedItem.quantity)}</span>
           </div>
           <div className="flex gap-2 px-4 pb-4">
-            <button onClick={() => { setCurrentPage('cart'); navigate('/'); setShowCartBubble(false); }} className="flex-1 bg-gray-200 text-black font-bold py-2 rounded hover:bg-gray-300">XEM GIỎ HÀNG</button>
-            <button onClick={() => { setCurrentPage('cart'); navigate('/'); setShowCartBubble(false); }} className="flex-1 bg-black text-white font-bold py-2 rounded hover:bg-gray-800">THANH TOÁN</button>
+            <button onClick={() => { setCurrentPage('cart'); setShowCartBubble(false); }} className="flex-1 bg-gray-200 text-black font-bold py-2 rounded hover:bg-gray-300">XEM GIỎ HÀNG</button>
+            <button onClick={() => { setCurrentPage('checkout'); setShowCartBubble(false); }} className="flex-1 bg-black text-white font-bold py-2 rounded hover:bg-gray-800">THANH TOÁN</button>
           </div>
         </div>
       )}
