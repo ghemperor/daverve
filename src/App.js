@@ -741,7 +741,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
                 {/* Full view modal - Enhanced */}
                 {isFullViewOpen && (
                     <>
-                        <div className="fixed inset-0 z-[130] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in pointer-events-auto" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
+                        <div className="fixed left-0 right-0 top-16 bottom-0 z-[130] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in pointer-events-auto" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
                         
                         {/* Image navigation area */}
                         <div className="relative flex items-center justify-center w-full h-full px-16" onClick={e => e.stopPropagation()}>
@@ -758,7 +758,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
                             <img 
                                 src={images[currentImageIndex]} 
                                 alt={product.name} 
-                                className="max-h-[85vh] max-w-[85vw] object-contain mx-auto shadow-2xl rounded-lg" 
+                                className="max-h-[75vh] max-w-[85vw] object-contain mx-auto shadow-2xl rounded-lg" 
                             />
                             
                             {images.length > 1 && (
@@ -799,7 +799,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
                     {/* Separate close button with highest z-index */}
                     <button 
                         onClick={() => setIsFullViewOpen(false)} 
-                        className="fixed top-6 right-6 z-[150] bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-200 hover:scale-110 group shadow-2xl border border-white/20"
+                        className="fixed top-20 right-6 z-[150] bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-200 hover:scale-110 group shadow-2xl border border-white/20"
                         title="Đóng (ESC)"
                     >
                         <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
