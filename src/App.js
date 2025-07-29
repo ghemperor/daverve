@@ -703,7 +703,7 @@ const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => 
         {/* Left column: summary, product list, note */}
         <div className="w-full md:w-2/3 flex flex-col gap-6">
           <div className="bg-gray-50 rounded p-4 text-gray-700 font-semibold">
-            Có <span className="text-black font-bold">{cartItems.length}</span> sản phẩm trong giỏ hàng
+            Giỏ hàng của bạn
           </div>
           <div className="w-full">
             <div className="space-y-6">
