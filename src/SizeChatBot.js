@@ -14,9 +14,14 @@ const sizeChart = [
 async function askGeminiV3(question) {
   try {
     console.log('Calling Gemini API with question:', question);
-    console.log('Using API URL: /api/gemini (relative path)');
     
-    const res = await fetch(`/api/gemini?v=${Date.now()}`, {
+    // Determine API URL based on environment
+    const isLocal = window.location.hostname === 'localhost';
+    const apiUrl = isLocal ? 'http://localhost:4000/api/gemini' : `/api/gemini?v=${Date.now()}`;
+    
+    console.log('Using API URL:', apiUrl);
+    
+    const res = await fetch(apiUrl, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
