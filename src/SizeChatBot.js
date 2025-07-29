@@ -77,16 +77,16 @@ const SizeChatBot = ({ products = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   // Default message with proper timestamp
-  const defaultMessages = [
+  const getDefaultMessages = () => [
     {
-      id: 1,
+      id: `bot_welcome_${Date.now()}`,
       type: 'bot',
       text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
       timestamp: new Date().toISOString()
     }
   ];
   
-  const [messages, setMessages] = useLocalStorage('chatHistory', defaultMessages);
+  const [messages, setMessages] = useLocalStorage('chatHistory', getDefaultMessages());
   
   // Debug: log messages whenever they change
   useEffect(() => {
@@ -98,13 +98,22 @@ const SizeChatBot = ({ products = [] }) => {
   
   // Reset chat function
   const resetChat = () => {
-    setMessages(defaultMessages);
+    console.log('🔄 Resetting chat');
+    
+    // Clear localStorage completely
+    localStorage.removeItem('chatHistory');
+    localStorage.removeItem('chatContext');
+    
+    // Reset states
+    setMessages(getDefaultMessages());
     setConversationContext({
       userHeight: null,
       userWeight: null,
       preferredStyles: [],
       previousRecommendations: []
     });
+    setSuggestedProducts([]);
+    setIsLoading(false);
   };
   const [conversationContext, setConversationContext] = useLocalStorage('chatContext', {
     userHeight: null,
@@ -147,7 +156,9 @@ const SizeChatBot = ({ products = [] }) => {
 
   // Common function to send message
   const sendMessage = async (messageText) => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || isLoading) return;
+    
+    console.log('📨 Sending message:', messageText);
 
     const userMessageId = `user_${Date.now()}`;
     const userMessage = {
@@ -164,6 +175,9 @@ const SizeChatBot = ({ products = [] }) => {
     setIsLoading(true);
 
     try {
+      // Small delay to ensure proper sequencing
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const botReply = await generateBotReply(messageText.trim());
       const botMessageId = `bot_${Date.now()}`;
       const botMessage = {
@@ -236,7 +250,8 @@ const SizeChatBot = ({ products = [] }) => {
     return filtered.slice(0, 3);
   }
 
-  const generateBotReply = useCallback(async (userInput) => {
+  const generateBotReply = async (userInput) => {
+    console.log('🤖 generateBotReply called with:', userInput);
     try {
       const text = userInput.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
 
@@ -313,12 +328,13 @@ const SizeChatBot = ({ products = [] }) => {
       const enhancedPrompt = `${contextInfo}${previousRecommendations}${userInput}. Trả lời ngắn gọn, thân thiện, chuyên nghiệp bằng tiếng Việt. Nếu liên quan đến thời trang, hãy đưa ra lời khuyên cụ thể.`;
       
       const geminiReply = await askGeminiV3(enhancedPrompt);
+      console.log('🤖 Bot reply generated:', geminiReply);
       return geminiReply;
     } catch (error) {
       console.error('Error in generateBotReply:', error);
       return 'Xin lỗi, tôi đang gặp một chút vấn đề kỹ thuật. Vui lòng thử lại sau nhé!';
     }
-  }, [conversationContext, setConversationContext]);
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
