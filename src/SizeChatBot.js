@@ -12,16 +12,38 @@ const sizeChart = [
 ];
 
 async function askGemini(question) {
-  const res = await fetch('/api/gemini', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: question }] }]
-    })
-  });
-  const data = await res.json();
-  if (data.error) return `Lỗi Gemini: ${data.error}`;
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chưa có câu trả lời phù hợp.";
+  try {
+    console.log('Calling Gemini API with question:', question);
+    
+    const res = await fetch('/api/gemini', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: question }] }]
+      })
+    });
+    
+    console.log('Response status:', res.status);
+    
+    if (!res.ok) {
+      console.error('HTTP Error:', res.status, res.statusText);
+      return `Lỗi kết nối API (${res.status}): ${res.statusText}`;
+    }
+    
+    const data = await res.json();
+    console.log('API Response:', data);
+    
+    if (data.error) {
+      console.error('Gemini API Error:', data.error);
+      return `Lỗi Gemini: ${data.error}`;
+    }
+    
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chưa có câu trả lời phù hợp.";
+    
+  } catch (error) {
+    console.error('Network/Parse Error:', error);
+    return `Lỗi kết nối: ${error.message}. Vui lòng thử lại sau.`;
+  }
 }
 
 const SizeChatBot = ({ products = [] }) => {
