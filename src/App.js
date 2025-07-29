@@ -272,21 +272,21 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
             <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="relative flex justify-between items-center h-14">
                     <div className="flex-1 flex justify-start">
-                        <button onClick={onMobileMenuOpen} className="lg:hidden"><Menu className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[1px_1px_2px_rgba(255,255,255,0.8)]'}`} /></button>
-                        <Link to="/" className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[2px_2px_4px_rgba(255,255,255,0.8)]'} focus:outline-none`}>MEVY</Link>
+                        <button onClick={onMobileMenuOpen} className="lg:hidden"><Menu className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
+                        <Link to="/" className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none`}>MEVY</Link>
                     </div>
                     <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        {menuData.map(item => <div key={item.title} onMouseEnter={() => handleMouseEnterMenu(item.title)} className="h-14 flex items-center"><a href="#" onClick={(e) => handleNavClick(e, item)} className={`text-base font-bold whitespace-nowrap transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[1px_1px_2px_rgba(255,255,255,0.8)]'}`}>{item.title}</a></div>)}
+                        {menuData.map(item => <div key={item.title} onMouseEnter={() => handleMouseEnterMenu(item.title)} className="h-14 flex items-center"><a href="#" onClick={(e) => handleNavClick(e, item)} className={`text-base font-bold whitespace-nowrap transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>{item.title}</a></div>)}
                     </nav>
-                    <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><Link to="/" className={`text-3xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[2px_2px_4px_rgba(255,255,255,0.8)]'} focus:outline-none`}>MEVY</Link></div>
+                    <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><Link to="/" className={`text-3xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none`}>MEVY</Link></div>
                     <div className="flex-1 flex justify-end items-center gap-4">
-                        <button onClick={onSearchOpen}><Search className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[1px_1px_2px_rgba(255,255,255,0.8)]'}`} /></button>
+                        <button onClick={onSearchOpen}><Search className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
                         <button onClick={onWishlistOpen} className="relative hidden sm:block">
-                            <Heart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[1px_1px_2px_rgba(255,255,255,0.8)]'}`} />
+                            <Heart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} />
                              {wishlistCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">{wishlistCount}</span>}
                         </button>
                         <button onClick={onCartOpen} className="relative">
-                                                       <ShoppingCart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-black drop-shadow-[1px_1px_2px_rgba(255,255,255,0.8)]'}`} />
+                                                       <ShoppingCart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} />
                            {cartItemCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">{cartItemCount}</span>}
                         </button>
                     </div>
