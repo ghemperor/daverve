@@ -1,49 +1,68 @@
-// Fetch is available globally in Vercel environment
+// Edge runtime has fetch available globally
+export const config = {
+  runtime: 'edge',
+}
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   // Log for debugging on Vercel
   console.log('API called with method:', req.method);
   
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    return res.status(200).end();
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS'
+      }
+    });
   }
 
   // Chỉ cho phép POST requests
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
   }
 
-  // Thiết lập CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-
   try {
-    const { contents } = req.body;
+    const body = await req.json();
+    const { contents } = body;
     
-    console.log('Request body:', req.body);
+    console.log('Request body:', body);
     
     if (!contents) {
-      return res.status(400).json({ error: "Missing 'contents' in request body" });
+      return new Response(JSON.stringify({ error: "Missing 'contents' in request body" }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
     console.log('API key exists:', !!GEMINI_API_KEY);
     console.log('API key length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
-    console.log('Environment vars available:', Object.keys(process.env).length);
     
     if (!GEMINI_API_KEY) {
       console.error('GEMINI_API_KEY not found in environment variables');
-      return res.status(500).json({ 
+      return new Response(JSON.stringify({ 
         error: 'Gemini API key not configured',
         debug: {
-          envVarsCount: Object.keys(process.env).length,
           nodeEnv: process.env.NODE_ENV || 'undefined'
+        }
+      }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
         }
       });
     }
@@ -66,14 +85,32 @@ export default async function handler(req, res) {
     
     if (data.error) {
       console.error('Gemini API Error:', data.error.message);
-      return res.status(500).json({ error: data.error.message });
+      return new Response(JSON.stringify({ error: data.error.message }), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
 
     console.log('Success! Returning data...');
-    return res.status(200).json(data);
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
     
   } catch (error) {
     console.error('Gemini proxy error:', error);
-    return res.status(500).json({ error: error.message || 'Unknown error' });
+    return new Response(JSON.stringify({ error: error.message || 'Unknown error' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
   }
 }
