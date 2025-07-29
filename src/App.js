@@ -1,5 +1,5 @@
-   import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
-import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
+import { ArrowDown, Search, Heart, ShoppingCart, Menu, X, ChevronDown, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import ScrollToTop from './ScrollToTop';
 import SizeChatBot from './SizeChatBot';
@@ -8,7 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import OptimizedImage from './components/OptimizedImage';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { useDebounce } from './hooks/useDebounce';
-import { ProductCardSkeleton } from './components/LoadingSpinner';
+// import { ProductCardSkeleton } from './components/LoadingSpinner';
 
 
 // --- Dữ liệu giả lập (Mock Data) ---
@@ -231,10 +231,10 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }) => {
                         {menuData.map(item => (
                             <li key={item.title} className="border-b">
                                 <div className="flex justify-between items-center py-3" onClick={(e) => handleNavClick(e, item)}>
-                                    <a href="#" className="text-xl font-bold">{item.title}</a>
+                                    <button className="text-xl font-bold text-left">{item.title}</button>
                                     {item.subItems.length > 0 && <ChevronDown size={20} className={`transition-transform ${openSubMenu === item.title ? 'rotate-180' : ''}`} />}
                                 </div>
-                                {item.subItems.length > 0 && <div className={`overflow-hidden transition-all duration-300 ${openSubMenu === item.title ? 'max-h-screen' : 'max-h-0'}`}><ul className="pl-4 py-2">{item.subItems.map(subItem => <li key={subItem} className="py-1.5"><a href="#" className="text-gray-600 text-sm">{subItem}</a></li>)}</ul></div>}
+                                                                  {item.subItems.length > 0 && <div className={`overflow-hidden transition-all duration-300 ${openSubMenu === item.title ? 'max-h-screen' : 'max-h-0'}`}><ul className="pl-4 py-2">{item.subItems.map(subItem => <li key={subItem} className="py-1.5"><button className="text-gray-600 text-sm text-left">{subItem}</button></li>)}</ul></div>}
                             </li>
                         ))}
                     </ul>
@@ -490,7 +490,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
     const defaultVariant = product.variants?.find(v => v.inStock) || product.variants?.[0] || null;
     const [selectedVariant, setSelectedVariant] = useState(defaultVariant);
     const [quantity, setQuantity] = useState(1);
-    const [currentImage, setCurrentImage] = useState(product?.imageUrl || '');
+    // const [currentImage, setCurrentImage] = useState(product?.imageUrl || '');
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isFullViewOpen, setIsFullViewOpen] = useState(false);
 
@@ -1001,18 +1001,18 @@ function ProductDetailPage({ products, onAddToCart }) {
 }
 
 // Dữ liệu địa chỉ mẫu
-const addressData = {
-  'Hà Nội': {
-    'Ba Đình': ['Phúc Xá', 'Trúc Bạch', 'Vĩnh Phúc'],
-    'Hoàn Kiếm': ['Chương Dương', 'Hàng Bạc', 'Hàng Buồm'],
-    'Cầu Giấy': ['Dịch Vọng', 'Nghĩa Đô', 'Quan Hoa']
-  },
-  'TP.HCM': {
-    'Quận 1': ['Bến Nghé', 'Bến Thành', 'Cầu Kho'],
-    'Quận 3': ['Phường 1', 'Phường 2', 'Phường 3'],
-    'Quận 7': ['Tân Phong', 'Tân Quy', 'Phú Mỹ']
-  }
-};
+// const addressData = {
+//   'Hà Nội': {
+//     'Ba Đình': ['Phúc Xá', 'Trúc Bạch', 'Vĩnh Phúc'],
+//     'Hoàn Kiếm': ['Chương Dương', 'Hàng Bạc', 'Hàng Buồm'],
+//     'Cầu Giấy': ['Dịch Vọng', 'Nghĩa Đô', 'Quan Hoa']
+//   },
+//   'TP.HCM': {
+//     'Quận 1': ['Bến Nghé', 'Bến Thành', 'Cầu Kho'],
+//     'Quận 3': ['Phường 1', 'Phường 2', 'Phường 3'],
+//     'Quận 7': ['Tân Phong', 'Tân Quy', 'Phú Mỹ']
+//   }
+// };
 
 // Hook fetch địa chỉ động
 function useVietnamAddress() {
@@ -1314,7 +1314,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  // const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const location = useLocation();
   const isHome = location.pathname === '/';
   const navigate = useNavigate();
@@ -1351,23 +1351,23 @@ export default function App() {
     setCartItems(cartItems.filter(item => item.id !== itemId));
   };
 
-  const handleUpdateVariant = (item, newVariant) => {
-    const productId = item.id.split('-')[0];
-    const product = products.find(p => p.id === Number(productId));
-    if (!product) return;
-
-    const allVariants = product.variants;
-    const existingVariant = allVariants.find(v => v.colorName === newVariant.colorName && v.size === newVariant.size);
-
-    if (existingVariant && existingVariant.inStock) {
-        setCartItems(cartItems.map(cartItem => {
-            if (cartItem.id === item.id) {
-                return { ...cartItem, colorName: newVariant.colorName, size: newVariant.size };
-            }
-            return cartItem;
-        }));
-    }
-  };
+  // const handleUpdateVariant = (item, newVariant) => {
+  //   const productId = item.id.split('-')[0];
+  //   const product = products.find(p => p.id === Number(productId));
+  //   if (!product) return;
+  //
+  //   const allVariants = product.variants;
+  //   const existingVariant = allVariants.find(v => v.colorName === newVariant.colorName && v.size === newVariant.size);
+  //
+  //   if (existingVariant && existingVariant.inStock) {
+  //       setCartItems(cartItems.map(cartItem => {
+  //           if (cartItem.id === item.id) {
+  //               return { ...cartItem, colorName: newVariant.colorName, size: newVariant.size };
+  //           }
+  //           return cartItem;
+  //       }));
+  //   }
+  // };
 
 
   const toggleWishlist = (productId) => {
