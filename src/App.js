@@ -15,12 +15,70 @@ import { useDebounce } from './hooks/useDebounce';
 const products = [
   {
     id: 1,
+    name: "ASH CLOUD TEE",
+    price: "2500000",
+    imageUrl: "https://cdn.hstatic.net/products/1000306633/_dsf0625_b15cc444a3df492db7e4d1024f38a0b9.jpg",
+    imageUrlBack: "https://cdn.hstatic.net/products/1000306633/_dsf0641_0980cee6ad6c49538a1fa358abec8f29.jpg",
+    date: '2025-07-10',
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
+    variants: [
+        { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: true },
+        { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'L', inStock: true },
+        { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'S', inStock: true },
+        { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'M', inStock: true },
+    ]
+  },
+  {
+    id: 2,
+    name: "FADE OUT WOVEN SHIRT",
+    price: "2300000",
+    imageUrl: "https://cdn.hstatic.net/products/1000306633/v_q00068_eb92df24aff647ad8da5c781450dabb7.jpg",
+    imageUrlBack: "https://cdn.hstatic.net/products/1000306633/v_q00082_68cffa63a094472da0663028161b45e1.jpg",
+    date: '2025-07-09',
+    tags: [{ text: 'New Arrival', color: 'bg-black' }, { text: 'Best Seller', color: 'bg-red-600' }],
+    variants: [
+        { colorName: 'Xám', colorHex: '#808080', size: 'M', inStock: true },
+        { colorName: 'Xám', colorHex: '#808080', size: 'L', inStock: false },
+        { colorName: 'Xám', colorHex: '#808080', size: 'XL', inStock: true },
+    ]
+  },
+  {
+    id: 3,
+    name: "HEAVEN'S CALL HOODIE ZIP",
+    price: "4800000",
+    imageUrl: "https://cdn.hstatic.net/products/1000306633/_dsf0923_a8c8dadacc63469b8add85972415a052.jpg",
+    imageUrlBack: "https://cdn.hstatic.net/products/1000306633/_dsf0943_99e992b7d7ee430a8271f613ba648bb4.jpg",
+    date: '2025-06-20',
+    tags: [{ text: 'Hết hàng', color: 'bg-gray-500' }],
+    variants: [
+        { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: false },
+        { colorName: 'Đen', colorHex: '#000000', size: 'L', inStock: false },
+    ]
+  },
+  {
+    id: 4,
+    name: "REFINEMENT FLANNEL SHIRT",
+    price: "1235000",
+    originalPrice: "1900000",
+    imageUrl: "https://cdn.hstatic.net/products/1000306633/080425.hd5735_c6dea31826274ac9ba85751b2b4f313b.jpg",
+    imageUrlBack: "https://cdn.hstatic.net/products/1000306633/080425.hd5752_3987df81927f48afa3bf69730952b49b.jpg",
+    date: '2025-05-15',
+    tags: [{ text: 'Sale', color: 'bg-red-600' }],
+     variants: [
+        { colorName: 'Xanh', colorHex: '#3B82F6', size: 'S', inStock: true },
+        { colorName: 'Xanh', colorHex: '#3B82F6', size: 'M', inStock: true },
+    ]
+  },
+  {
+    id: 5,
     name: "ASTRAL DENIM JACKET",
     price: "3200000",
     imageUrl: "https://cdn.hstatic.net/products/1000306633/_dsf0818_9a539921420d4f288fc58fd1fc3e2bab.jpg",
     imageUrlBack: "https://cdn.hstatic.net/products/1000306633/_dsf0816_9cd0c216eb4c40e3802e2be8c542fb6d.jpg",
     date: '2025-07-15',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }, { text: 'Premium', color: 'bg-yellow-600' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
         { colorName: 'Xanh', colorHex: '#3B82F6', size: 'S', inStock: true },
         { colorName: 'Xanh', colorHex: '#3B82F6', size: 'M', inStock: true },
@@ -29,13 +87,13 @@ const products = [
     ]
   },
   {
-    id: 2,
+    id: 6,
     name: "DARK MATTER DENIM PANTS",
     price: "2800000",
     imageUrl: "https://product.hstatic.net/1000306633/product/untitled_session0288_e19243cabc424e92bd033e3cdac78636.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/untitled_session0294_f3f10116e1ad478383d63fc4acec43ec.jpg",
     date: '2025-07-14',
-    tags: [{ text: 'New Arrival', color: 'bg-black' }, { text: 'Streetwear', color: 'bg-purple-600' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }, { text: 'Best Seller', color: 'bg-red-600' }],
     variants: [
         { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: true },
         { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: true },
@@ -44,13 +102,13 @@ const products = [
     ]
   },
   {
-    id: 3,
+    id: 7,
     name: "RANGER KHAKI CAMO PANTS",
     price: "2600000",
     imageUrl: "https://product.hstatic.net/1000306633/product/pandemos0035_1_ca386ec176374735ba6f8d8102bc49b7.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/pandemos0036_1_f8a64edf2f204969beba529c38a13dc5.jpg",
     date: '2025-07-13',
-    tags: [{ text: 'Military', color: 'bg-green-700' }, { text: 'Limited', color: 'bg-orange-600' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
         { colorName: 'Camo', colorHex: '#4A5D23', size: 'S', inStock: true },
         { colorName: 'Camo', colorHex: '#4A5D23', size: 'M', inStock: false },
@@ -59,25 +117,25 @@ const products = [
     ]
   },
   {
-    id: 4,
+    id: 8,
     name: "BLACK BLOCK BACKPACK",
     price: "1890000",
     imageUrl: "https://cdn.hstatic.net/products/1000306633/black_block__5ef61fb817fa4ae294f757ed28662eaf.jpg",
     imageUrlBack: "https://cdn.hstatic.net/products/1000306633/black_block_1_924433fb951f4962a8e24f52b13b2196.jpg",
     date: '2025-07-12',
-    tags: [{ text: 'Accessories', color: 'bg-blue-600' }, { text: 'Urban', color: 'bg-gray-700' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
         { colorName: 'Đen', colorHex: '#000000', size: 'FREESIZE', inStock: true },
     ]
   },
   {
-    id: 5,
+    id: 9,
     name: "TATTOO FLASH LONGSLEEVE",
     price: "2200000",
     imageUrl: "https://product.hstatic.net/1000306633/product/untitled_capture0480_496ad2df85ac47a2b6f8c35e5132e2bb.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/untitled_capture0493_e58fd49910ef46319fbe2700640ebbdd.jpg",
     date: '2025-07-11',
-    tags: [{ text: 'Graphics', color: 'bg-red-600' }, { text: 'Art', color: 'bg-pink-600' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
         { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'S', inStock: true },
         { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'M', inStock: true },
@@ -86,13 +144,13 @@ const products = [
     ]
   },
   {
-    id: 6,
+    id: 10,
     name: "CAMO LONGSLEEVE JERSEY",
     price: "2100000",
     imageUrl: "https://product.hstatic.net/1000306633/product/untitled_capture0545_a475c7927af146009f6c6b4e2dc5eacf.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/untitled_capture0554_39375491b5304614b218128599aa796d.jpg",
     date: '2025-07-10',
-    tags: [{ text: 'Military', color: 'bg-green-700' }, { text: 'Jersey', color: 'bg-indigo-600' }],
+    tags: [{ text: 'New Arrival', color: 'bg-black' }],
     variants: [
         { colorName: 'Camo', colorHex: '#4A5D23', size: 'S', inStock: true },
         { colorName: 'Camo', colorHex: '#4A5D23', size: 'M', inStock: true },
@@ -101,14 +159,14 @@ const products = [
     ]
   },
   {
-    id: 7,
+    id: 11,
     name: "LASSO CHAMPION TEE",
     price: "1750000",
     originalPrice: "2200000",
     imageUrl: "https://product.hstatic.net/1000306633/product/dsc04838_7ae162cf7ce943c8a2fd734377c2ee68.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/dsc04844_127a35d08ed14e52bbc96a94c156d104.jpg",
     date: '2025-07-09',
-    tags: [{ text: 'Sale', color: 'bg-red-600' }, { text: 'Champion', color: 'bg-yellow-600' }],
+    tags: [{ text: 'Sale', color: 'bg-red-600' }],
     variants: [
         { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'S', inStock: true },
         { colorName: 'Trắng', colorHex: '#FFFFFF', size: 'M', inStock: true },
@@ -117,13 +175,13 @@ const products = [
     ]
   },
   {
-    id: 8,
+    id: 12,
     name: "777 JERSEY MESH",
     price: "1950000",
     imageUrl: "https://product.hstatic.net/1000306633/product/dsc09179_dfadf76009324a92a77ce6e572699553.jpg",
     imageUrlBack: "https://product.hstatic.net/1000306633/product/dsc09189_c4e1e34ba757446297ca19e1d3b9ddb2.jpg",
     date: '2025-07-08',
-    tags: [{ text: 'Sports', color: 'bg-blue-600' }, { text: 'Mesh', color: 'bg-cyan-600' }],
+    tags: [{ text: 'Hết hàng', color: 'bg-gray-500' }],
     variants: [
         { colorName: 'Đen', colorHex: '#000000', size: 'S', inStock: false },
         { colorName: 'Đen', colorHex: '#000000', size: 'M', inStock: false },
