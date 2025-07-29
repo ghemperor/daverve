@@ -17,7 +17,10 @@ async function askGemini(question) {
     
     const res = await fetch('/api/gemini', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
+      },
       body: JSON.stringify({
         contents: [{ parts: [{ text: question }] }]
       })
