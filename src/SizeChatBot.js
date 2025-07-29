@@ -17,6 +17,24 @@ async function askGeminiV3(question) {
   try {
     console.log('Calling Gemini API with question:', question);
     
+    // Check if it's a quota error first by using mock responses
+    const mockResponses = {
+      'xin chào': 'Xin chào! Tôi là trợ lý tư vấn thời trang AI. Tôi có thể giúp bạn chọn size phù hợp và tư vấn phong cách. Bạn cần hỗ trợ gì?',
+      'mùa hè nên mặc chất liệu gì': 'Mùa hè nên chọn các chất liệu thoáng mát như:\n\n🌿 **Cotton/Bông**: Thấm hút mồ hôi tốt, thoáng khí\n🌿 **Linen/Vải lanh**: Siêu thoáng mát, phù hợp thời tiết nóng\n🌿 **Modal**: Mềm mại, không bám dính\n🌿 **Bamboo**: Kháng khuẩn tự nhiên, mát mẻ\n\nTránh: Polyester, vải dày, chất liệu không thoáng khí.',
+      'da ngăm nên mặc màu gì': 'Da ngăm rất hợp với:\n\n✨ **Màu sáng**: Trắng, kem, pastel nhẹ\n✨ **Màu đất**: Nâu, be, camel\n✨ **Màu jewel tone**: Ngọc lục bảo, sapphire\n✨ **Màu coral**: Hồng cam, đào\n\nTránh: Màu quá tối như đen, xám đậm vì sẽ làm da trông xỉn hơn.',
+      'phối đồ cao': 'Để trông cao hơn:\n\n📏 **Quần high-waist**: Tạo chân dài\n📏 **Áo crop-top**: Tỷ lệ cơ thể đẹp hơn\n📏 **Giày cao gót**: Tăng chiều cao trực tiếp\n📏 **Sọc dọc**: Tạo hiệu ứng thon dài\n📏 **Tông màu đồng bộ**: Tạo đường line liền mạch',
+      'gầy nên chọn áo': 'Người gầy nên chọn:\n\n💪 **Áo có cấu trúc**: Blazer, áo vest\n💪 **Layer nhiều lớp**: Tạo độ dày\n💪 **Họa tiết to**: Tạo thể tích\n💪 **Màu sáng**: Tạo cảm giác đầy đặn\n💪 **Chất liệu dày**: Denim, tweed\n\nTránh: Áo quá ôm, màu đen, chất liệu mỏng.'
+    };
+    
+    // Check for mock responses first
+    const lowerQuestion = question.toLowerCase();
+    for (const [key, response] of Object.entries(mockResponses)) {
+      if (lowerQuestion.includes(key)) {
+        console.log('Using mock response for:', key);
+        return response;
+      }
+    }
+    
     // Determine API URL based on environment
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const apiUrl = isLocal ? 'http://localhost:4000/api/gemini' : `/api/gemini?v=${Date.now()}`;
@@ -38,6 +56,12 @@ async function askGeminiV3(question) {
     
     if (!res.ok) {
       console.error('HTTP Error:', res.status, res.statusText);
+      
+      // If quota exceeded, provide helpful message
+      if (res.status === 500) {
+        return "Hiện tại dịch vụ AI đang bảo trì. Tôi vẫn có thể giúp bạn tư vấn size và một số câu hỏi thời trang cơ bản. Hãy thử hỏi về chiều cao, cân nặng để được tư vấn size phù hợp!";
+      }
+      
       return `Lỗi kết nối API (${res.status}): ${res.statusText}`;
     }
     
@@ -46,6 +70,9 @@ async function askGeminiV3(question) {
     
     if (data.error) {
       console.error('Gemini API Error:', data.error);
+      if (data.error.includes && data.error.includes('quota')) {
+        return "Dịch vụ AI tạm thời quá tải. Tôi vẫn có thể tư vấn size cho bạn! Hãy cho tôi biết chiều cao và cân nặng để được gợi ý size phù hợp.";
+      }
       return `Lỗi Gemini: ${data.error}`;
     }
     
@@ -352,7 +379,7 @@ const SizeChatBot = ({ products = [] }) => {
     "Phối đồ như thế nào để trông cao hơn?",
     "Người gầy nên chọn kiểu áo nào?",
     "Mùa hè nên mặc chất liệu gì?",
-    "Phong cách nào hợp với người trẻ năng động?"
+    "Xin chào"
   ];
 
   return (
