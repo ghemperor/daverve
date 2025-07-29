@@ -87,6 +87,11 @@ const SizeChatBot = ({ products = [] }) => {
   ];
   
   const [messages, setMessages] = useLocalStorage('chatHistory', defaultMessages);
+  
+  // Debug: log messages whenever they change
+  useEffect(() => {
+    console.log('Messages updated:', messages);
+  }, [messages]);
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,35 +145,62 @@ const SizeChatBot = ({ products = [] }) => {
     return bestSize.size + warning;
   };
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
+  // Common function to send message
+  const sendMessage = async (messageText) => {
+    if (!messageText.trim()) return;
 
-          const userMessage = {
-        id: messages.length + 1,
-        type: 'user',
-        text: inputText,
-        timestamp: new Date().toISOString()
-      };
+    const userMessageId = `user_${Date.now()}`;
+    const userMessage = {
+      id: userMessageId,
+      type: 'user',
+      text: messageText.trim(),
+      timestamp: new Date().toISOString()
+    };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputText('');
-
-    // Xử lý logic bot reply
+    setMessages(prev => {
+      console.log('Adding user message:', userMessage);
+      return [...prev, userMessage];
+    });
     setIsLoading(true);
-    setTimeout(async () => {
-      const botReply = await generateBotReply(inputText);
+
+    try {
+      const botReply = await generateBotReply(messageText.trim());
+      const botMessageId = `bot_${Date.now()}`;
       const botMessage = {
-        id: messages.length + 2,
+        id: botMessageId,
         type: 'bot',
         text: botReply,
         timestamp: new Date().toISOString()
       };
-      setMessages(prev => [...prev, botMessage]);
-      // Sau khi bot trả lời, thử gợi ý sản phẩm
-      const found = findSuggestedProducts(inputText);
+      
+      setMessages(prev => {
+        console.log('Adding bot message:', botMessage);
+        return [...prev, botMessage];
+      });
+      
+      // Gợi ý sản phẩm
+      const found = findSuggestedProducts(messageText.trim());
       setSuggestedProducts(found);
+    } catch (error) {
+      console.error('Error in sendMessage:', error);
+      const errorMessageId = `error_${Date.now()}`;
+      const errorMessage = {
+        id: errorMessageId,
+        type: 'bot',
+        text: 'Xin lỗi, tôi đang gặp vấn đề kỹ thuật. Vui lòng thử lại!',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputText.trim()) return;
+    const userInput = inputText.trim();
+    setInputText('');
+    await sendMessage(userInput);
   };
 
   // Hàm lọc sản phẩm dựa trên từ khóa
@@ -377,27 +409,7 @@ const SizeChatBot = ({ products = [] }) => {
                         key={idx}
                         className="bg-white hover:bg-gray-200 text-gray-800 text-xs rounded-full px-3 py-1 border border-gray-200 transition-colors mb-1"
                         style={{whiteSpace:'nowrap'}}
-                        onClick={async () => {
-                          setInputText("");
-                          // Gửi luôn như tin nhắn user
-                          const userMessage = {
-                            id: messages.length + 1,
-                            type: 'user',
-                            text: q,
-                            timestamp: new Date().toISOString()
-                          };
-                          setMessages(prev => [...prev, userMessage]);
-                          setIsLoading(true);
-                          const botReply = await generateBotReply(q);
-                          const botMessage = {
-                            id: messages.length + 2,
-                            type: 'bot',
-                            text: botReply,
-                            timestamp: new Date().toISOString()
-                          };
-                          setMessages(prev => [...prev, botMessage]);
-                          setIsLoading(false);
-                        }}
+                        onClick={() => sendMessage(q)}
                         disabled={isLoading}
                       >
                         {q}
