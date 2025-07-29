@@ -16,7 +16,7 @@ async function askGemini(question) {
     console.log('Calling Gemini API with question:', question);
     console.log('Using API URL: /api/gemini (relative path)');
     
-    const res = await fetch(`/api/gemini?t=${Date.now()}`, {
+    const res = await fetch(`/api/gemini-v2?t=${Date.now()}`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
