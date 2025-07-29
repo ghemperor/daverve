@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { useLocalStorage } from './hooks/useLocalStorage';
 
@@ -103,22 +103,62 @@ const formatTimestamp = (timestamp) => {
 const SizeChatBot = ({ products = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Default message with proper timestamp
-  const getDefaultMessages = () => [
+  // Default message with proper timestamp - only create once
+  const defaultMessages = useMemo(() => [
     {
       id: `bot_welcome_${Date.now()}`,
       type: 'bot',
       text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
       timestamp: new Date().toISOString()
     }
-  ];
+  ], []);
   
-  const [messages, setMessages] = useLocalStorage('chatHistory', getDefaultMessages());
+  const [messages, setMessages] = useLocalStorage('chatHistory', defaultMessages);
   
   // Debug: log messages whenever they change
   useEffect(() => {
-    console.log('Messages updated:', messages);
+    console.log('💬 Messages updated:', messages);
+    console.log('💾 localStorage chatHistory:', localStorage.getItem('chatHistory'));
   }, [messages]);
+  
+  // Debug: Check localStorage on mount
+  useEffect(() => {
+    console.log('🔍 Component mounted, checking localStorage...');
+    console.log('📦 chatHistory:', localStorage.getItem('chatHistory'));
+    console.log('📦 chatContext:', localStorage.getItem('chatContext'));
+    
+    // Force check and reload if needed
+    const savedHistory = localStorage.getItem('chatHistory');
+    if (savedHistory) {
+      try {
+        const parsed = JSON.parse(savedHistory);
+        console.log('🔄 Found saved history, length:', parsed.length);
+        if (parsed.length !== messages.length) {
+          console.log('⚠️ Message count mismatch! Saved:', parsed.length, 'Current:', messages.length);
+        }
+      } catch (e) {
+        console.error('❌ Error parsing saved history:', e);
+      }
+    }
+  }, []);
+  
+  // Watch for localStorage changes from other tabs
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'chatHistory') {
+        console.log('🔄 localStorage changed from another tab');
+        try {
+          const newData = JSON.parse(e.newValue);
+          setMessages(newData);
+        } catch (error) {
+          console.error('Error parsing new localStorage data:', error);
+        }
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [setMessages]);
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -132,7 +172,7 @@ const SizeChatBot = ({ products = [] }) => {
     localStorage.removeItem('chatContext');
     
     // Reset states
-    setMessages(getDefaultMessages());
+    setMessages(defaultMessages);
     setConversationContext({
       userHeight: null,
       userWeight: null,
@@ -387,7 +427,11 @@ const SizeChatBot = ({ products = [] }) => {
       {/* Chat Button */}
       <div className="fixed bottom-24 right-4 z-50">
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            console.log('🎯 Toggling chat. Current state:', isOpen);
+            console.log('📊 Current messages:', messages);
+            setIsOpen(!isOpen);
+          }}
           className="bg-black text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-gray-800 transition-colors"
         >
           {isOpen ? (
@@ -417,6 +461,33 @@ const SizeChatBot = ({ products = [] }) => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  console.log('🔍 Debug localStorage:');
+                  console.log('Messages state:', messages);
+                  console.log('LocalStorage chatHistory:', localStorage.getItem('chatHistory'));
+                  
+                  // Test saving manually
+                  const testMessages = [
+                    ...defaultMessages,
+                    {
+                      id: 'test_user_' + Date.now(),
+                      type: 'user',
+                      text: 'Test message from debug',
+                      timestamp: new Date().toISOString()
+                    }
+                  ];
+                  localStorage.setItem('chatHistory', JSON.stringify(testMessages));
+                  console.log('💾 Manually saved test message');
+                }}
+                className="p-1 rounded hover:bg-white/20 transition-colors"
+                aria-label="Debug localStorage"
+                title="Debug localStorage"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
               <button
                 onClick={resetChat}
                 className="p-1 rounded hover:bg-white/20 transition-colors"
