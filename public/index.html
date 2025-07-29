@@ -7,8 +7,24 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="MEVY - Thời trang cao cấp cho phụ nữ hiện đại. Khám phá bộ sưu tập áo quần, váy đầm, phụ kiện thời trang mới nhất với chất lượng premium."
     />
+    <meta name="keywords" content="thời trang nữ, áo quần nữ, váy đầm, phụ kiện thời trang, thời trang cao cấp, MEVY" />
+    <meta name="author" content="MEVY Fashion" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MEVY - Thời Trang Cao Cấp" />
+    <meta property="og:description" content="Khám phá bộ sưu tập thời trang cao cấp dành cho phụ nữ hiện đại tại MEVY" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.jpg" />
+    <meta property="og:url" content="https://daverve.vercel.app" />
+    <meta property="og:site_name" content="MEVY Fashion" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MEVY - Thời Trang Cao Cấp" />
+    <meta name="twitter:description" content="Khám phá bộ sưu tập thời trang cao cấp dành cho phụ nữ hiện đại" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/og-image.jpg" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -25,7 +41,46 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
       <script src="https://cdn.tailwindcss.com"></script>
-    <title>React App</title>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ClothingStore",
+      "name": "MEVY",
+      "description": "Thời trang cao cấp cho phụ nữ hiện đại",
+      "url": "https://daverve.vercel.app",
+      "logo": "https://daverve.vercel.app/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/mevy",
+        "https://www.instagram.com/mevy"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Clothing Collection",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Váy đầm cao cấp",
+              "category": "Dresses"
+            }
+          },
+          {
+            "@type": "Offer", 
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Áo quần thời trang",
+              "category": "Clothing"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+    
+    <title>MEVY - Thời Trang Cao Cấp Dành Cho Phụ Nữ Hiện Đại</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

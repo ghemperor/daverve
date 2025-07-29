@@ -151,7 +151,7 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
     };
 
     return (
-        <div className="group text-left cursor-pointer" onClick={handleCardClick}>
+        <div className="group text-left cursor-pointer" onClick={handleCardClick} role="button" tabIndex="0" aria-label={`Xem chi tiết sản phẩm ${product.name}`} onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}>
           <div className="relative rounded-lg mb-3 overflow-hidden aspect-[3/4] bg-gray-100">
             {hasOutOfStockSize && (
                 <button onClick={e => { e.stopPropagation(); onAddToWishlist(product.id); }} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
@@ -272,22 +272,22 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
             <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="relative flex justify-between items-center h-14">
                     <div className="flex-1 flex justify-start">
-                        <button onClick={onMobileMenuOpen} className="lg:hidden"><Menu className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
-                        <Link to="/" className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none`}>MEVY</Link>
+                        <button onClick={onMobileMenuOpen} className="lg:hidden" aria-label="Mở menu điều hướng" aria-expanded="false"><Menu className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
+                        <Link to="/" className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded`}>MEVY</Link>
                     </div>
-                    <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                        {menuData.map(item => <div key={item.title} onMouseEnter={() => handleMouseEnterMenu(item.title)} className="h-14 flex items-center"><a href="#" onClick={(e) => handleNavClick(e, item)} className={`text-base font-bold whitespace-nowrap transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`}>{item.title}</a></div>)}
+                    <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" role="navigation" aria-label="Menu chính">
+                        {menuData.map(item => <div key={item.title} onMouseEnter={() => handleMouseEnterMenu(item.title)} className="h-14 flex items-center"><a href="#" onClick={(e) => handleNavClick(e, item)} className={`text-base font-bold whitespace-nowrap transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded px-2 py-1`} role="menuitem">{item.title}</a></div>)}
                     </nav>
                     <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><Link to="/" className={`text-3xl font-bold transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'} focus:outline-none`}>MEVY</Link></div>
                     <div className="flex-1 flex justify-end items-center gap-4">
-                        <button onClick={onSearchOpen}><Search className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
-                        <button onClick={onWishlistOpen} className="relative hidden sm:block">
+                        <button onClick={onSearchOpen} aria-label="Mở tìm kiếm" className="p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"><Search className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} /></button>
+                        <button onClick={onWishlistOpen} className="relative hidden sm:block p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label={`Danh sách yêu thích${wishlistCount > 0 ? ` (${wishlistCount} sản phẩm)` : ''}`}>
                             <Heart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} />
-                             {wishlistCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">{wishlistCount}</span>}
+                             {wishlistCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white" aria-hidden="true">{wishlistCount}</span>}
                         </button>
-                        <button onClick={onCartOpen} className="relative">
+                        <button onClick={onCartOpen} className="relative p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label={`Giỏ hàng${cartItemCount > 0 ? ` (${cartItemCount} sản phẩm)` : ''}`}>
                                                        <ShoppingCart className={`transition-colors duration-300 ${showSolidHeader ? 'text-black' : 'text-white'}`} />
-                           {cartItemCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">{cartItemCount}</span>}
+                           {cartItemCount > 0 && <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white" aria-hidden="true">{cartItemCount}</span>}
                         </button>
                     </div>
                 </div>
