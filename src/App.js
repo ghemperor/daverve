@@ -10,6 +10,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { useDebounce } from './hooks/useDebounce';
 import { ProductCardSkeleton } from './components/LoadingSpinner';
 
+
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
   {
@@ -166,8 +167,18 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
                     ))}
                 </div>
             )}
-            <OptimizedImage src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0" />
-            <OptimizedImage src={product.imageUrlBack} alt={`${product.name} (mặt sau)`} className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
+            <OptimizedImage 
+              src={product.imageUrl} 
+              alt={product.name} 
+              className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0"
+              lazy={true}
+            />
+            <img 
+              src={product.imageUrlBack} 
+              alt={`${product.name} (mặt sau)`} 
+              className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out"
+              loading="eager"
+            />
             <div className="absolute bottom-4 left-0 right-0 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} className="w-full sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center">XEM NHANH</button>
                 <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} disabled={isCompletelyOutOfStock} className="w-full sm:flex-grow sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>

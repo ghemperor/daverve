@@ -7,6 +7,7 @@ const OptimizedImage = ({
   className = '', 
   fallbackSrc = '/images/placeholder.jpg',
   lazy = true,
+  onLoad: externalOnLoad,
   ...props 
 }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +37,9 @@ const OptimizedImage = ({
 
   const handleLoad = () => {
     setIsLoading(false);
+    if (externalOnLoad) {
+      externalOnLoad();
+    }
   };
 
   const handleError = () => {
@@ -46,7 +50,7 @@ const OptimizedImage = ({
   const imageSrc = hasError ? fallbackSrc : src;
 
   return (
-    <div ref={imgRef} className={`relative ${className}`} {...props}>
+    <div ref={imgRef} className="relative w-full h-full" {...props}>
       {isLoading && (
         <LoadingSkeleton className="absolute inset-0 z-10" />
       )}
@@ -54,7 +58,7 @@ const OptimizedImage = ({
         <img
           src={imageSrc}
           alt={alt}
-          className={`${className} transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'}`}
           onLoad={handleLoad}
           onError={handleError}
           loading={lazy ? 'lazy' : 'eager'}
