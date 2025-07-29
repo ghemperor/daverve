@@ -16,9 +16,10 @@ async function askGeminiV3(question) {
     console.log('Calling Gemini API with question:', question);
     
     // Determine API URL based on environment
-    const isLocal = window.location.hostname === 'localhost';
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     const apiUrl = isLocal ? 'http://localhost:4000/api/gemini' : `/api/gemini?v=${Date.now()}`;
     
+    console.log('Environment detection:', { hostname: window.location.hostname, isLocal });
     console.log('Using API URL:', apiUrl);
     
     const res = await fetch(apiUrl, {
