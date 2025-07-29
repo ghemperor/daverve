@@ -571,15 +571,57 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
 
     const isCompletelyOutOfStock = product.variants.every(v => !v.inStock);
 
-    // Escape key closes full view modal
+    // Escape key closes full view modal & scroll lock for fullscreen
     useEffect(() => {
         if (!isFullViewOpen) return;
+        
+        // Escape key handler
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') setIsFullViewOpen(false);
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        
+        // Additional scroll lock for fullscreen (extra security)
+        const scrollY = window.scrollY;
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+        
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            
+            // Restore scroll for fullscreen
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, scrollY);
+        };
     }, [isFullViewOpen]);
+
+    // Block scroll when Quick View modal is open
+    useEffect(() => {
+        // Save current scroll position
+        const scrollY = window.scrollY;
+        
+        // Apply scroll lock styles
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.width = '100%';
+        document.body.style.overflow = 'hidden';
+        
+        // Cleanup function to restore scroll
+        return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            
+            // Restore scroll position
+            window.scrollTo(0, scrollY);
+        };
+    }, []); // Empty dependency array - runs on mount/unmount
 
     // If no valid variant is selected, show a message
     if (!selectedVariant) {
