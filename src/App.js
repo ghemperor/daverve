@@ -1636,13 +1636,13 @@ export default function App() {
       <ErrorBoundary>
       <ScrollToTop />
       {toastMessage && (
-        <div className="fixed top-6 right-6 z-[200] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
+        <div className="fixed top-6 right-6 z-[90] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
           {toastMessage}
         </div>
       )}
       {/* Cart bubble notification */}
       {showCartBubble && lastAddedItem && (
-        <div className="fixed top-16 right-8 z-[200] bg-white border border-gray-200 shadow-xl rounded-lg w-80 animate-fade-in flex flex-col">
+        <div className="fixed top-16 right-8 z-[90] bg-white border border-gray-200 shadow-xl rounded-lg w-80 animate-fade-in flex flex-col">
           <div className="flex items-center gap-3 p-4 border-b">
             <img src={lastAddedItem.imageUrl} alt={lastAddedItem.name} className="w-16 h-16 object-contain rounded-md border" />
             <div className="flex-1">
