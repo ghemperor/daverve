@@ -952,16 +952,15 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
                      <div className="mb-4">
                         <h3 className="text-sm font-bold mb-2">SỐ LƯỢNG</h3>
                         <div className="flex items-center border rounded-md w-fit">
-                            <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1"><Minus size={16} /></button>
-                            <span className="px-4 text-lg">{quantity}</span>
-                            <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1"><Plus size={16} /></button>
+                          <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1"><Minus size={16} /></button>
+                          <span className="px-4 text-lg">{quantity}</span>
+                          <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1"><Plus size={16} /></button>
                         </div>
-                    </div>
-
-                    <div className="mt-auto pt-4 space-y-2">
-                        <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed">THÊM VÀO GIỎ HÀNG</button>
-                        <button disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
-                    </div>
+                      </div>
+                      <div className="mt-auto pt-4 space-y-2">
+                         <button onClick={handleAddToCartClick} disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-gray-200 text-black font-bold py-3 rounded-md hover:bg-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed">THÊM VÀO GIỎ HÀNG</button>
+                         <button disabled={isCompletelyOutOfStock || !selectedVariant.inStock} className="w-full bg-black text-white font-bold py-3 rounded-md hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
+                        </div>
                 </div>
             </div>
         </div>
@@ -1048,7 +1047,7 @@ const CartPage = ({ cartItems, onUpdateQuantity, onRemoveFromCart, onBack }) => 
             <div className="space-y-6">
               {cartItems.length > 0 ? cartItems.map(item => (
                 <div key={item.id} className="flex items-center gap-4 border-b pb-4">
-                  <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-contain rounded-md border" />
+                  <img src={item.imageUrl} alt={item.name} className="w-24 h-24 object-contain rounded-md" />
                   <div className="flex-1">
                     <div className="font-bold uppercase">{item.name}</div>
                     <div className="text-sm text-gray-500">{formatPrice(item.price)}</div>
@@ -1131,6 +1130,7 @@ function ProductDetailPage({ products, onAddToCart }) {
   const [showDesc, setShowDesc] = React.useState(true);
   const [showDetails, setShowDetails] = React.useState(false);
   const [showSizeTable, setShowSizeTable] = React.useState(false);
+  const [showFullDesc, setShowFullDesc] = React.useState(false);
 
   // Ảnh
   const images = React.useMemo(() => product ? [product.imageUrl, product.imageUrlBack].filter(Boolean) : [], [product]);
@@ -1198,117 +1198,123 @@ function ProductDetailPage({ products, onAddToCart }) {
 
   // UI
   return (
-    <div className="min-h-screen bg-white pt-28 flex justify-center">
-      <div className="w-full max-w-screen-2xl px-2 md:px-16 flex flex-col md:flex-row items-start gap-4 md:gap-16">
+    <div className="min-h-screen bg-white flex justify-center items-center" style={{paddingTop: '100px', paddingBottom: '60px'}}>
+      <div className="w-full max-w-[90vw] md:max-w-[75vw] h-[calc(100vh-160px)] max-h-[calc(100vh-160px)] flex flex-col md:flex-row items-stretch gap-2 md:gap-6 overflow-hidden">
         {/* Cụm thumbnail + ảnh sản phẩm */}
-        <div className="flex flex-row items-start gap-2 w-full md:w-3/4">
-          <div className="hidden md:flex flex-col gap-4 items-start justify-start">
+        <div className="flex flex-col md:flex-row items-stretch w-full md:w-3/5 max-w-full bg-white">
+          <div className="hidden md:flex flex-col gap-2 items-start justify-start py-2 px-2 overflow-y-auto max-h-full">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-24 h-24 object-contain rounded" />
+                <img src={img} alt={`Preview ${idx+1}`} className="w-20 h-20 object-contain rounded" />
               </button>
             ))}
           </div>
-          <div className="flex flex-col items-center justify-start w-auto max-w-[900px] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[1100px] w-auto bg-white" style={{maxWidth:'100%', minHeight:'800px'}} />
+          <div className="flex flex-col items-center justify-center flex-1 group relative overflow-y-auto max-h-full py-2">
+            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[70vh] w-full bg-white" style={{maxWidth:'100%', minHeight:'180px'}} />
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
               onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
               className="hidden group-hover:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
               aria-label="Ảnh trước"
             >
-              <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
             </button>
             <button
               onClick={() => setCurrentImageIndex(i => (i + 1) % images.length)}
               className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
               aria-label="Ảnh sau"
             >
-              <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+              <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
             </button>
           </div>
         </div>
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-1/3 max-w-lg flex flex-col gap-4 justify-start pt-0">
+        <div className={`w-full md:w-2/5 max-w-full flex flex-col gap-2 justify-start pt-0 px-3 py-2 ${showFullDesc ? 'overflow-y-auto' : 'overflow-hidden'} max-h-full`}>
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
-          <div className="flex md:hidden gap-4 items-center mb-2">
+          <div className="flex md:hidden gap-2 items-center mb-1 justify-center">
             {images.map((img, idx) => (
-              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-16 h-16 object-contain rounded" />
-              </button>
+              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`w-2 h-2 rounded-full transition-all ${currentImageIndex === idx ? 'bg-black' : 'bg-gray-300'}`}></button>
             ))}
           </div>
           {/* Tên sản phẩm */}
-          <div className="text-3xl font-extrabold uppercase mb-2 tracking-tight">{product.name}</div>
-          <div className="text-xl font-bold mb-2">{formatPrice(product.price)}</div>
+          <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
+          <div className="text-sm md:text-lg font-bold mb-1">{formatPrice(product.price)}</div>
           {product.originalPrice && (
-            <div className="text-base text-gray-500 line-through mb-2">{formatPrice(product.originalPrice)}</div>
+            <div className="text-xs md:text-base text-gray-500 line-through mb-1">{formatPrice(product.originalPrice)}</div>
           )}
           {/* Chọn màu */}
           <div className="mb-1">
-            <div className="font-bold text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-            <div className="flex gap-2">
+            <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
+            <div className="flex gap-2 flex-wrap">
               {colorOptions.map((c, idx) => (
-                <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-6 h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
+                <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
               ))}
             </div>
           </div>
           {/* Chọn size + nút xem bảng size */}
-          <div className="mb-2">
-            <div className="flex items-center gap-4 mb-1">
-              <div className="font-bold text-sm tracking-widest">KÍCH THƯỚC</div>
+          <div className="mb-1">
+            <div className="flex items-center gap-2 md:gap-4 mb-1">
+              <div className="font-bold text-xs md:text-sm tracking-widest">KÍCH THƯỚC</div>
               <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {sizeOptions.map((s) => (
-                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[56px] w-14 px-0 py-2 border rounded text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
+                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
                   {s.size}
                 </button>
               ))}
             </div>
           </div>
           {/* Số lượng */}
-          <div className="mb-2">
-            <div className="font-bold text-sm mb-1 tracking-widest">SỐ LƯỢNG</div>
-            <div className="flex items-center border rounded w-fit">
-              <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-3 py-1">-</button>
-              <span className="px-4 text-lg">{quantity}</span>
-              <button onClick={() => setQuantity(q => q + 1)} className="px-3 py-1">+</button>
+          <div className="mb-1">
+            <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">SỐ LƯỢNG</div>
+            <div className="flex items-center border rounded-md w-fit">
+              <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 md:px-3 py-1">-</button>
+              <span className="px-3 md:px-4 text-base md:text-lg">{quantity}</span>
+              <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
             </div>
           </div>
-          {/* Divider duy nhất giữa vận chuyển & đổi trả và mô tả sản phẩm */}
-          {/* <div className="border-b border-black w-full mx-0" /> */}
+          {/* Actions trên mobile */}
+          <div className="md:hidden flex gap-2 mt-2 w-full">
+            <button className="w-full px-3 py-2 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
+            <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
+          </div>
           {/* Shipping & Returns */}
-          <div className="border-t border-black w-full mx-0">
-            <div className="font-bold text-lg tracking-widest mt-4 mb-2">VẬN CHUYỂN & ĐỔI TRẢ</div>
-            <div className="text-sm text-gray-800 leading-relaxed mb-2">
+          <div className="border-t border-black w-full mx-0 pt-1">
+            <div className="font-bold text-sm md:text-lg tracking-widest mt-1 mb-1">VẬN CHUYỂN & ĐỔI TRẢ</div>
+            <div className="text-xs md:text-sm text-gray-800 leading-relaxed mb-1">
               Miễn phí vận chuyển cho đơn hàng từ 40$ trở lên.<br />
               Thời gian xử lý và giao hàng từ 5-7 ngày làm việc.<br />
               Đóng gói quà tặng bao gồm hộp signature của shop.
             </div>
           </div>
-          {/* Divider */}
-          {/* <div className="border-b border-black my-1 w-full mx-0" /> */}
           {/* Collapsible Description */}
-          <div className="border-t border-black w-full mx-0">
-            <button className="flex items-center gap-2 font-extrabold text-lg uppercase tracking-widest mt-4 mb-2" onClick={() => setShowDesc(v => !v)}>
+          <div className="border-t border-black w-full mx-0 pt-1">
+            <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1" onClick={() => setShowDesc(v => !v)}>
               MÔ TẢ SẢN PHẨM
               <span>{showDesc ? '▼' : '▲'}</span>
             </button>
             {showDesc && (
-              <div className="text-base text-gray-800 leading-relaxed mb-2">
-                {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
+              <div className="text-xs md:text-base text-gray-800 leading-relaxed mb-1">
+                {/* Desktop: Giữ nguyên scroll */}
+                <div className="hidden md:block max-h-24 md:max-h-32 overflow-y-auto">
+                  {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
+                </div>
+                {/* Mobile: Hiển thị đầy đủ */}
+                <div className="md:hidden">
+                  {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
+                </div>
               </div>
             )}
           </div>
           {/* Collapsible Product Details */}
           <div className="border-t border-black w-full mx-0">
-            <button className="flex items-center gap-2 font-extrabold text-lg uppercase tracking-widest mt-4 mb-2" onClick={() => setShowDetails(v => !v)}>
+            <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1" onClick={() => setShowDetails(v => !v)}>
               CHI TIẾT SẢN PHẨM
               <span>{showDetails ? '▼' : '▲'}</span>
             </button>
             {showDetails && (
-              <ul className="text-base text-gray-800 leading-relaxed list-disc pl-5">
+              <ul className="text-xs md:text-base text-gray-800 leading-relaxed list-disc pl-5">
                 <li>Chất liệu: Cotton cao cấp</li>
                 <li>Form: Unisex</li>
                 <li>Xuất xứ: Việt Nam</li>
@@ -1328,10 +1334,19 @@ function ProductDetailPage({ products, onAddToCart }) {
           )}
           {/* Divider trước button */}
           <div className="border-t border-black w-full mx-0" />
-          {/* Actions cuối cùng */}
-          <div className="flex gap-2 mt-2 w-full">
+          {/* Actions cuối cùng - chỉ hiển thị trên desktop */}
+          <div className="hidden md:flex gap-2 mt-2 w-full">
             <button className="w-full px-4 py-3 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
             <button className="w-full px-4 py-3 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
+          </div>
+          {/* Mobile: Nút XEM THÊM ở cuối giới hạn */}
+          <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2">
+            <button 
+              onClick={() => setShowFullDesc(!showFullDesc)} 
+              className="w-full py-2 border border-black text-black font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+            >
+              {showFullDesc ? 'THU GỌN' : 'XEM THÊM'}
+            </button>
           </div>
         </div>
       </div>
@@ -1961,3 +1976,4 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
