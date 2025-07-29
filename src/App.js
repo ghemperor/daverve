@@ -801,7 +801,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
                     </div>
                     
                     {/* Main image container - enhanced */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative bg-gray-50 rounded-xl p-4">
+                    <div className="flex-1 flex flex-col items-center justify-center relative bg-white rounded-xl p-4">
                         <img 
                             src={images[currentImageIndex]} 
                             alt={product.name} 
