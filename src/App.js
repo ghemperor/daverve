@@ -517,9 +517,18 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFro
                                         <div className="text-sm text-gray-900 font-bold">{formatPrice(item.price)}</div>
                                       </div>
                                       <div className="flex items-center gap-1">
-                                        <button className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white" disabled>-</button>
+                                        <button 
+                                          onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                                          className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-100 touch-manipulation" 
+                                          disabled={item.quantity <= 1}
+                                          aria-label="Giảm số lượng"
+                                        >-</button>
                                         <span className="px-2 text-gray-900">{item.quantity}</span>
-                                        <button className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white" disabled>+</button>
+                                        <button 
+                                          onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                                          className="px-2 py-1 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-100 touch-manipulation"
+                                          aria-label="Tăng số lượng"
+                                        >+</button>
                                       </div>
                                 </div>
                             ))}
