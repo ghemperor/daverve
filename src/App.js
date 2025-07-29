@@ -616,52 +616,153 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-[70] flex justify-center items-center animate-fade-in" onClick={onClose}>
-            <div className="bg-white rounded-lg w-full max-w-4xl h-auto max-h-[90vh] flex p-6 relative" onClick={e => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-black"><X size={24} /></button>
-                <div className="w-1/2 pr-4 relative flex">
-                    {/* Thumbnails on the left */}
-                    <div className="flex flex-col gap-2 items-center justify-center mr-4">
+            <div className="bg-white rounded-xl w-full max-w-5xl h-auto max-h-[92vh] flex flex-col lg:flex-row p-4 sm:p-6 relative shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                <button 
+                    onClick={onClose} 
+                    className="absolute top-4 right-4 z-10 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-all duration-200 hover:scale-110 group"
+                    title="Đóng"
+                >
+                    <X size={20} className="text-gray-600 group-hover:text-black transition-colors" />
+                </button>
+                <div className="w-full lg:w-1/2 lg:pr-6 mb-6 lg:mb-0 relative flex">
+                    {/* Thumbnails - responsive positioning */}
+                    <div className="hidden sm:flex flex-col gap-2 items-center justify-center mr-4">
                         {images.map((img, idx) => (
-                            <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`border rounded-md p-0.5 transition-all ${currentImageIndex === idx ? 'border-black' : 'border-transparent'} border-[1px]`}> 
-                                <img src={img} alt={`Preview ${idx+1}`} className="w-14 h-14 object-contain rounded" />
+                            <button 
+                                key={img} 
+                                onClick={() => setCurrentImageIndex(idx)} 
+                                className={`border rounded-lg p-1 transition-all hover:scale-105 ${
+                                    currentImageIndex === idx ? 'border-black ring-2 ring-black/20' : 'border-gray-200 hover:border-gray-300'
+                                }`}
+                            > 
+                                <img src={img} alt={`Preview ${idx+1}`} className="w-12 h-12 sm:w-14 sm:h-14 object-contain rounded" />
                             </button>
                         ))}
                     </div>
-                    {/* Main image and full view button */}
-                    <div className="flex-1 flex flex-col items-center justify-center relative">
-                        <img src={images[currentImageIndex]} alt={product.name} className="w-full h-full object-contain rounded-md" />
+                    
+                    {/* Main image container - enhanced */}
+                    <div className="flex-1 flex flex-col items-center justify-center relative bg-gray-50 rounded-xl p-4">
+                        <img 
+                            src={images[currentImageIndex]} 
+                            alt={product.name} 
+                            className="w-full h-full max-h-[400px] object-contain rounded-lg" 
+                        />
+                        
+                        {/* Navigation arrows - enhanced */}
                         {images.length > 1 && (
                             <>
-                                <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-1 hover:bg-white"><ChevronLeft size={20} /></button>
-                                <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/50 rounded-full p-1 hover:bg-white"><ChevronRight size={20} /></button>
+                                <button 
+                                    onClick={prevImage} 
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-2 transition-all duration-200 hover:scale-110"
+                                    title="Ảnh trước"
+                                >
+                                    <ChevronLeft size={18} className="text-gray-700" />
+                                </button>
+                                <button 
+                                    onClick={nextImage} 
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white shadow-lg rounded-full p-2 transition-all duration-200 hover:scale-110"
+                                    title="Ảnh tiếp theo"
+                                >
+                                    <ChevronRight size={18} className="text-gray-700" />
+                                </button>
                             </>
                         )}
-                        {/* Full view button */}
-                        <button onClick={() => setIsFullViewOpen(true)} className="mt-4 bg-white border border-gray-300 rounded p-2 shadow hover:bg-gray-100 flex items-center justify-center">
-                            <svg xmlns='http://www.w3.org/2000/svg' className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M20 8V4h-4M4 16v4h4m12-4v4h-4" /></svg>
+                        
+                        {/* Full view button - redesigned & repositioned */}
+                        <button 
+                            onClick={() => setIsFullViewOpen(true)} 
+                            className="absolute bottom-3 right-3 bg-black/80 hover:bg-black backdrop-blur-sm text-white rounded-full p-2.5 shadow-xl transition-all duration-200 hover:scale-110 group"
+                            title="Xem toàn màn hình"
+                        >
+                            <svg xmlns='http://www.w3.org/2000/svg' className="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M20 8V4h-4M4 16v4h4m12-4v4h-4" />
+                            </svg>
                         </button>
+                        
+                        {/* Mobile thumbnails - bottom dots */}
+                        {images.length > 1 && (
+                            <div className="sm:hidden flex justify-center gap-2 mt-4">
+                                {images.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`w-2.5 h-2.5 rounded-full transition-all ${
+                                            currentImageIndex === idx ? 'bg-black scale-125' : 'bg-gray-300 hover:bg-gray-400'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Full view modal */}
+                {/* Full view modal - Enhanced */}
                 {isFullViewOpen && (
-                    <div className="fixed inset-0 z-[100] bg-black bg-opacity-90 flex flex-col items-center justify-center animate-fade-in" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
-                        <button onClick={() => setIsFullViewOpen(false)} className="absolute top-6 right-8 text-white text-3xl"><X size={32} /></button>
-                        <div className="relative flex items-center justify-center w-full h-full" onClick={e => e.stopPropagation()}>
-                            <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-black rounded-full p-2"><ChevronLeft size={32} /></button>
-                            <img src={images[currentImageIndex]} alt={product.name} className="max-h-[70vh] max-w-[80vw] object-contain mx-auto" />
-                            <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-black rounded-full p-2"><ChevronRight size={32} /></button>
+                    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
+                        {/* Enhanced close button */}
+                        <button 
+                            onClick={() => setIsFullViewOpen(false)} 
+                            className="absolute top-4 right-4 z-10 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-200 hover:scale-110 group"
+                            title="Đóng (ESC)"
+                        >
+                            <X size={24} className="group-hover:rotate-90 transition-transform duration-200" />
+                        </button>
+                        
+                        {/* Image navigation area */}
+                        <div className="relative flex items-center justify-center w-full h-full px-16" onClick={e => e.stopPropagation()}>
+                            {images.length > 1 && (
+                                <button 
+                                    onClick={prevImage} 
+                                    className="absolute left-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-200 hover:scale-110"
+                                    title="Ảnh trước"
+                                >
+                                    <ChevronLeft size={28} />
+                                </button>
+                            )}
+                            
+                            <img 
+                                src={images[currentImageIndex]} 
+                                alt={product.name} 
+                                className="max-h-[85vh] max-w-[85vw] object-contain mx-auto shadow-2xl rounded-lg" 
+                            />
+                            
+                            {images.length > 1 && (
+                                <button 
+                                    onClick={nextImage} 
+                                    className="absolute right-8 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white rounded-full p-3 transition-all duration-200 hover:scale-110"
+                                    title="Ảnh tiếp theo"
+                                >
+                                    <ChevronRight size={28} />
+                                </button>
+                            )}
                         </div>
-                        {/* Dot indicators */}
-                        <div className="flex justify-center gap-2 mt-6">
-                            {images.map((_, idx) => (
-                                <span key={idx} className={`inline-block w-2 h-2 rounded-full ${currentImageIndex === idx ? 'bg-white' : 'bg-gray-500'}`}></span>
-                            ))}
+                        
+                        {/* Enhanced dot indicators */}
+                        {images.length > 1 && (
+                            <div className="flex justify-center gap-3 mt-8 mb-4">
+                                {images.map((_, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                                            currentImageIndex === idx 
+                                                ? 'bg-white scale-125' 
+                                                : 'bg-white/50 hover:bg-white/80'
+                                        }`}
+                                        title={`Ảnh ${idx + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                        
+                        {/* Product name overlay */}
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm text-white px-6 py-2 rounded-full text-sm font-medium">
+                            {product.name}
                         </div>
                     </div>
                 )}
 
-                <div className="w-1/2 pl-4 flex flex-col">
+                <div className="w-full lg:w-1/2 lg:pl-6 flex flex-col overflow-y-auto">
                     <h2 className="text-2xl font-bold mb-2">{product.name}</h2>
                     <p className="text-xl text-gray-800 mb-4">{formatPrice(product.price)}</p>
                     
