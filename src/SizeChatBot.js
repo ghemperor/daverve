@@ -115,6 +115,34 @@ const SizeChatBot = ({ products = [] }) => {
   
   const [messages, setMessages] = useLocalStorage('chatHistory', defaultMessages);
   
+  // Force initial save if localStorage is empty
+  useEffect(() => {
+    const checkAndFix = () => {
+      const stored = localStorage.getItem('chatHistory');
+      console.log('🔧 Checking localStorage on mount:', stored);
+      
+      if (!stored || stored === 'null') {
+        console.log('🔧 Forcing initial save...');
+        try {
+          // Test if localStorage is working
+          localStorage.setItem('test', 'test');
+          localStorage.removeItem('test');
+          console.log('✅ localStorage is working');
+          
+          // Save initial messages
+          setMessages(defaultMessages);
+        } catch (e) {
+          console.error('❌ localStorage not available:', e);
+          // Fallback: just use state without persistence
+        }
+      }
+    };
+    
+    // Run immediately and after a small delay
+    checkAndFix();
+    setTimeout(checkAndFix, 100);
+  }, [defaultMessages, setMessages]);
+  
   // Debug: log messages whenever they change
   useEffect(() => {
     console.log('💬 Messages updated:', messages);
@@ -139,6 +167,11 @@ const SizeChatBot = ({ products = [] }) => {
       } catch (e) {
         console.error('❌ Error parsing saved history:', e);
       }
+    } else {
+      console.log('⚠️ No saved history found, initializing...');
+      // Force save initial messages to localStorage
+      localStorage.setItem('chatHistory', JSON.stringify(defaultMessages));
+      console.log('💾 Saved initial messages to localStorage');
     }
   }, []);
   
@@ -479,6 +512,13 @@ const SizeChatBot = ({ products = [] }) => {
                   ];
                   localStorage.setItem('chatHistory', JSON.stringify(testMessages));
                   console.log('💾 Manually saved test message');
+                  
+                  // Force reload from localStorage
+                  const saved = localStorage.getItem('chatHistory');
+                  if (saved) {
+                    setMessages(JSON.parse(saved));
+                    console.log('🔄 Forced reload from localStorage');
+                  }
                 }}
                 className="p-1 rounded hover:bg-white/20 transition-colors"
                 aria-label="Debug localStorage"
