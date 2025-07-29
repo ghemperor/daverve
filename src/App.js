@@ -502,7 +502,7 @@ const CartSidebar = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveFro
     const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[60]" onClick={onClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[110]" onClick={onClose}>
             <div className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-xl animate-slide-in-right flex flex-col" onClick={e => e.stopPropagation()}>
                 <div className="flex justify-between items-center p-4 border-b">
                     <h2 className="text-xl font-bold">GIỎ HÀNG</h2>
