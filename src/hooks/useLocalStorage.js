@@ -1,48 +1,57 @@
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 
+// Optimized localStorage hook with debouncing and performance improvements
 export const useLocalStorage = (key, initialValue) => {
-  // State to store our value
+  const timeoutRef = useRef(null);
+  
+  // Lazy initialization with better error handling
   const [storedValue, setStoredValue] = useState(() => {
     try {
-      console.log(`🔍 useLocalStorage init for "${key}"`);
-      
-      // Check if localStorage is available
+      // SSR safety check
       if (typeof window === 'undefined' || !window.localStorage) {
-        console.log(`⚠️ localStorage not available for "${key}"`);
         return initialValue;
       }
       
       const item = window.localStorage.getItem(key);
-      console.log(`📦 localStorage.getItem("${key}"):`, item);
       
       if (item === null || item === 'null' || item === 'undefined') {
-        console.log(`⚠️ localStorage item is null/invalid for "${key}"`);
         return initialValue;
       }
       
-      const result = JSON.parse(item);
-      console.log(`📝 Returning parsed result:`, result);
-      return result;
+      return JSON.parse(item);
     } catch (error) {
-      console.error(`❌ Error reading localStorage key "${key}":`, error);
+      // Silent failure for better performance - no console.error in production
       return initialValue;
     }
   });
 
-  // Return a wrapped version of useState's setter function that ...
-  // ... persists the new value to localStorage.
-  const setValue = (value) => {
+  // Debounced setValue for better performance - prevents excessive localStorage writes
+  const setValue = useCallback((value) => {
     try {
-      // Allow value to be a function so we have the same API as useState
       const valueToStore = value instanceof Function ? value(storedValue) : value;
-      console.log(`💾 Setting localStorage "${key}":`, valueToStore);
+      
+      // Update React state immediately for UI responsiveness
       setStoredValue(valueToStore);
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      console.log(`✅ Successfully saved to localStorage "${key}"`);
+      
+      // Debounce localStorage writes to reduce blocking operations
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      timeoutRef.current = setTimeout(() => {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
+        } catch (error) {
+          // Silent failure for production performance
+        }
+      }, 100); // 100ms debounce
+      
     } catch (error) {
-      console.error(`❌ Error setting localStorage key "${key}":`, error);
+      // Silent failure for better performance
     }
-  };
+  }, [key, storedValue]);
 
   return [storedValue, setValue];
 };

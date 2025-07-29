@@ -125,6 +125,28 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
     const isCompletelyOutOfStock = useMemo(() => {
         return product.variants.every(v => !v.inStock);
     }, [product.variants]);
+
+    // Image preloading for better performance - NO UI CHANGES
+    useEffect(() => {
+        // Use requestIdleCallback for non-critical image preloading
+        const preloadImages = () => {
+            if (product.imageUrl) {
+                const img = new Image();
+                img.src = product.imageUrl;
+            }
+            if (product.imageUrlBack) {
+                const imgBack = new Image();
+                imgBack.src = product.imageUrlBack;
+            }
+        };
+
+        if (window.requestIdleCallback) {
+            window.requestIdleCallback(preloadImages);
+        } else {
+            // Fallback for browsers without requestIdleCallback
+            setTimeout(preloadImages, 100);
+        }
+    }, [product.imageUrl, product.imageUrlBack]);
     
     const isInWishlist = wishlist.includes(product.id);
 
