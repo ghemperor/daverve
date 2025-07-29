@@ -443,12 +443,12 @@ const SearchOverlay = memo(({ isOpen, onClose, searchQuery, setSearchQuery, sear
 const WishlistPage = ({ wishlist, products, onRemoveFromWishlist, onBack }) => {
     const wishlistedProducts = products.filter(p => wishlist.includes(p.id));
     return (
-        <div className="fixed inset-0 bg-white z-[70] animate-fade-in">
+        <div className="fixed inset-0 bg-white z-[70] animate-fade-in pt-14">
             <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center border-b">
                 <h1 className="text-2xl font-bold">Danh sách yêu thích</h1>
                 <button onClick={onBack} className="font-semibold hover:underline">Quay lại</button>
             </div>
-            <div className="p-4 sm:p-6 lg:p-8">
+            <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto h-full">
                 {wishlistedProducts.length > 0 ? (
                     <div className="space-y-6">
                         {wishlistedProducts.map(product => (
