@@ -11,12 +11,12 @@ const sizeChart = [
   { minHeight: 180, maxHeight: 200, minWeight: 75, maxWeight: 120, size: "XXXL" },
 ];
 
-async function askGemini(question) {
+async function askGeminiV3(question) {
   try {
     console.log('Calling Gemini API with question:', question);
     console.log('Using API URL: /api/gemini (relative path)');
     
-    const res = await fetch(`/api/gemini-v2?t=${Date.now()}`, {
+    const res = await fetch(`/api/gemini-v2?cachebust=${Date.now()}`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ const SizeChatBot = ({ products = [] }) => {
     }
 
     // Nếu không phải câu hỏi về size, gọi Gemini
-    const geminiReply = await askGemini(userInput + ". Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.");
+            const geminiReply = await askGeminiV3(userInput + ". Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.");
     return geminiReply;
   };
 
