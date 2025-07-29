@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo, useCallback } from 'react';
 import { ArrowDown, Search, Heart, ShoppingCart, Menu, X, ChevronDown, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import ScrollToTop from './ScrollToTop';
@@ -311,7 +311,7 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
             <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="relative flex justify-between items-center h-14">
                     <div className="flex-1 flex justify-start">
-                        <button onClick={onMobileMenuOpen} className="lg:hidden" aria-label="Mở menu điều hướng" aria-expanded="false"><Menu className={`transition-colors duration-300 ${textColorClass}`} /></button>
+                        <button onClick={onMobileMenuOpen} className="lg:hidden p-2 -m-2 touch-manipulation" aria-label="Mở menu điều hướng" aria-expanded="false"><Menu className={`transition-colors duration-300 ${textColorClass}`} /></button>
                         <Link to="/" className={`hidden lg:block text-4xl font-bold transition-colors duration-300 ${textColorClass} focus:outline-none`}>MEVY</Link>
                     </div>
                     <nav className="hidden lg:flex items-center justify-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" role="navigation" aria-label="Menu chính">
@@ -319,12 +319,12 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
                     </nav>
                     <div className="lg:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"><Link to="/" className={`text-3xl font-bold transition-colors duration-300 ${textColorClass} focus:outline-none`}>MEVY</Link></div>
                     <div className="flex-1 flex justify-end items-center gap-4">
-                        <button onClick={onSearchOpen} aria-label="Mở tìm kiếm" className="p-2 rounded focus:outline-none"><Search className={`transition-colors duration-300 ${textColorClass}`} /></button>
-                        <button onClick={onWishlistOpen} className="relative hidden sm:block p-2 rounded focus:outline-none" aria-label={`Danh sách yêu thích${wishlistCount > 0 ? ` (${wishlistCount} sản phẩm)` : ''}`}>
+                        <button onClick={onSearchOpen} aria-label="Mở tìm kiếm" className="p-2 rounded focus:outline-none touch-manipulation"><Search className={`transition-colors duration-300 ${textColorClass}`} /></button>
+                        <button onClick={onWishlistOpen} className="relative hidden sm:block p-2 rounded focus:outline-none touch-manipulation" aria-label={`Danh sách yêu thích${wishlistCount > 0 ? ` (${wishlistCount} sản phẩm)` : ''}`}>
                             <Heart className={`transition-colors duration-300 ${textColorClass}`} />
                              {wishlistCount > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white" aria-hidden="true">{wishlistCount}</span>}
                         </button>
-                        <button onClick={onCartOpen} className="relative p-2 rounded focus:outline-none" aria-label={`Giỏ hàng${cartItemCount > 0 ? ` (${cartItemCount} sản phẩm)` : ''}`}>
+                        <button onClick={onCartOpen} className="relative p-2 rounded focus:outline-none touch-manipulation" aria-label={`Giỏ hàng${cartItemCount > 0 ? ` (${cartItemCount} sản phẩm)` : ''}`}>
                                                        <ShoppingCart className={`transition-colors duration-300 ${textColorClass}`} />
                            {cartItemCount > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white" aria-hidden="true">{cartItemCount}</span>}
                         </button>
@@ -340,13 +340,34 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
     );
 };
 
-const SearchOverlay = ({ isOpen, onClose, searchQuery, setSearchQuery, searchResults, isSearchActive, onQuickViewOpen, onAddToWishlist, wishlist, onAddToCart, handleClearSearch }) => {
+const SearchOverlay = memo(({ isOpen, onClose, searchQuery, setSearchQuery, searchResults, isSearchActive, onQuickViewOpen, onAddToWishlist, wishlist, onAddToCart, handleClearSearch }) => {
     const inputRef = useRef(null);
+    const [localQuery, setLocalQuery] = useState(searchQuery);
+    
+    // Debounced search for better performance
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setSearchQuery(localQuery);
+        }, 300);
+        
+        return () => clearTimeout(timeoutId);
+    }, [localQuery, setSearchQuery]);
+    
     useEffect(() => {
         if (isOpen && inputRef.current) {
             inputRef.current.focus();
+            setLocalQuery(searchQuery);
         }
-    }, [isOpen]);
+    }, [isOpen, searchQuery]);
+    
+    const handleInputChange = useCallback((e) => {
+        setLocalQuery(e.target.value);
+    }, []);
+    
+    const handleClearLocal = useCallback(() => {
+        setLocalQuery('');
+        handleClearSearch();
+    }, [handleClearSearch]);
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[100] bg-white text-black flex flex-col animate-fade-in" style={{fontFamily: 'Roboto Condensed, sans-serif'}}>
@@ -360,12 +381,12 @@ const SearchOverlay = ({ isOpen, onClose, searchQuery, setSearchQuery, searchRes
                             type="text"
                             placeholder="Tìm kiếm sản phẩm..."
                             className="w-full bg-white border border-gray-300 rounded-full text-black text-lg sm:text-xl px-8 py-3 pr-12 focus:outline-none focus:border-black placeholder-gray-400 tracking-widest font-mono shadow-sm transition-all"
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
+                            value={localQuery}
+                            onChange={handleInputChange}
                             style={{minWidth:180, fontFamily: 'Roboto Condensed, monospace'}}
                         />
-                        {searchQuery && (
-                            <button onClick={handleClearSearch} className="absolute right-14 text-gray-400 hover:text-black text-base font-mono tracking-widest transition-colors">CLEAR</button>
+                        {localQuery && (
+                            <button onClick={handleClearLocal} className="absolute right-14 text-gray-400 hover:text-black text-base font-mono tracking-widest transition-colors">CLEAR</button>
                         )}
                         {/* Nút tìm kiếm (icon kính lúp) nằm trong input */}
                         <button
@@ -407,7 +428,7 @@ const SearchOverlay = ({ isOpen, onClose, searchQuery, setSearchQuery, searchRes
             </div>
         </div>
     );
-};
+});
 
 const WishlistPage = ({ wishlist, products, onRemoveFromWishlist, onBack }) => {
     const wishlistedProducts = products.filter(p => wishlist.includes(p.id));
@@ -1363,19 +1384,27 @@ export default function App() {
   };
 
   const handleAddToCart = (product, variant) => {
-    const cartItemId = `${product.id}-${variant.colorName}-${variant.size}`;
-    const existingItem = cartItems.find(item => item.id === cartItemId);
-    let newItem;
-    if (existingItem) {
-        setCartItems(cartItems.map(item => item.id === cartItemId ? { ...item, quantity: item.quantity + 1 } : item));
-        newItem = { ...existingItem, quantity: existingItem.quantity + 1 };
-    } else {
-        newItem = { ...product, ...variant, id: cartItemId, quantity: 1 };
-        setCartItems([...cartItems, newItem]);
+    try {
+      const cartItemId = `${product.id}-${variant.colorName}-${variant.size}`;
+      const existingItem = cartItems.find(item => item.id === cartItemId);
+      let newItem;
+      
+      if (existingItem) {
+          setCartItems(cartItems.map(item => item.id === cartItemId ? { ...item, quantity: item.quantity + 1 } : item));
+          newItem = { ...existingItem, quantity: existingItem.quantity + 1 };
+      } else {
+          newItem = { ...product, ...variant, id: cartItemId, quantity: 1 };
+          setCartItems([...cartItems, newItem]);
+      }
+      
+      setLastAddedItem(newItem);
+      setShowCartBubble(true);
+      setTimeout(() => setShowCartBubble(false), 2500);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setToastMessage('Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng');
+      setTimeout(() => setToastMessage(''), 3000);
     }
-    setLastAddedItem(newItem);
-    setShowCartBubble(true);
-    setTimeout(() => setShowCartBubble(false), 2500);
   };
   
   const handleUpdateQuantity = (itemId, newQuantity) => {
