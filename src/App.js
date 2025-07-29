@@ -180,7 +180,7 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
 
     return (
         <div className="group text-left cursor-pointer" onClick={handleCardClick} role="button" tabIndex="0" aria-label={`Xem chi tiết sản phẩm ${product.name}`} onKeyDown={(e) => e.key === 'Enter' && handleCardClick()}>
-          <div className="relative rounded-lg mb-3 overflow-hidden aspect-[3/4] bg-gray-100">
+          <div className="relative rounded-lg mb-3 sm:mb-4 overflow-hidden aspect-[3/4] bg-gray-100">
             {isCompletelyOutOfStock && (
                 <button onClick={handleWishlistClick} className="absolute top-3 right-3 z-10 p-1.5 bg-white/60 backdrop-blur-sm rounded-sm transition-all hover:scale-110">
                     <Heart className={`w-5 h-5 transition-all ${isInWishlist ? 'text-red-500 fill-current' : 'text-black'}`} />
@@ -189,7 +189,7 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
             {product.tags && product.tags.length > 0 && (
                 <div className="absolute top-3 left-3 z-10 flex flex-row flex-wrap items-start gap-1.5">
                     {product.tags.map((tag, index) => (
-                        <div key={index} className={`${tag.color} text-white text-[10px] font-bold px-2 py-1 rounded-sm`}>
+                        <div key={index} className={`${tag.color} text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded-sm`}>
                             {tag.text}
                         </div>
                     ))}
@@ -216,18 +216,18 @@ const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQ
             </div>
           </div>
           
-          <div className="px-2">
-              <h3 className="text-sm font-bold text-gray-800 truncate w-full uppercase" title={product.name}>
+          <div className="px-2 sm:px-3">
+              <h3 className="text-sm sm:text-base font-bold text-gray-800 truncate w-full uppercase" title={product.name}>
                   {product.name}
               </h3>
               {saleInfo.isSale ? (
-                <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-red-600 font-bold">{formatPrice(product.price)}</p>
-                    <p className="text-xs text-gray-500 line-through">{formatPrice(product.originalPrice)}</p>
-                    <p className="text-xs text-red-600">(-{saleInfo.salePercentage}%)</p>
+                <div className="flex items-center gap-2 mt-2">
+                    <p className="text-sm sm:text-base text-red-600 font-bold">{formatPrice(product.price)}</p>
+                    <p className="text-xs sm:text-sm text-gray-500 line-through">{formatPrice(product.originalPrice)}</p>
+                    <p className="text-xs sm:text-sm text-red-600">(-{saleInfo.salePercentage}%)</p>
                 </div>
               ) : (
-                <p className="text-sm text-gray-600 mt-1">{formatPrice(product.price)}</p>
+                <p className="text-sm sm:text-base text-gray-600 mt-2 font-medium">{formatPrice(product.price)}</p>
               )}
           </div>
         </div>
@@ -412,7 +412,7 @@ const SearchOverlay = memo(({ isOpen, onClose, searchQuery, setSearchQuery, sear
                     {isSearchActive ? (
                         <div className="w-full px-1 sm:px-6">
                             {searchResults.length > 0 ? (
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-6">
                                     {searchResults.map((product, idx) => (
                                         <div key={product.id} className="flex flex-col h-[470px] bg-white relative border border-black" style={{minWidth:0}}>
                                             <ProductCardSearch
@@ -1618,9 +1618,9 @@ export default function App() {
                     </div>
                     <FilterPanel isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} selectedColors={selectedColors} setSelectedColors={setSelectedColors} selectedSizes={selectedSizes} setSelectedSizes={setSelectedSizes} />
                   </div>
-                  <section id="product-grid" className="py-16 px-4 sm:px-6 lg:px-8">
+                  <section id="product-grid" className="py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
                     {filteredProducts.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-12">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
                             {filteredProducts.map(product => <ProductCard key={product.id} product={product} onAddToWishlist={toggleWishlist} wishlist={wishlist} onAddToCart={handleAddToCart} onQuickViewOpen={handleQuickViewOpen} />)}
                         </div>
                     ) : (
