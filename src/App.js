@@ -266,10 +266,11 @@ const MobileMenu = ({ isOpen, onClose, onNavigate }) => {
     );
 };
 
-const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistOpen, onCartOpen, onNavigate, wishlistCount, cartItemCount, forceSolid }) => {
+const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistOpen, onCartOpen, onNavigate, wishlistCount, cartItemCount, forceSolid, currentPage }) => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [activeMenu, setActiveMenu] = useState(null);
     const activeItemData = menuData.find(item => item.title === activeMenu);
+    const location = useLocation();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -283,9 +284,13 @@ const Header = ({ onMobileMenuOpen, setIsMegaMenuOpen, onSearchOpen, onWishlistO
     const getContrastTextColor = () => {
         if (showSolidHeader) return 'text-black';
         
-        // For transparent header, detect background brightness
-        // Since we're over hero image/dark content, use white text
-        return 'text-white';
+        // For transparent header, detect page background
+        const isOnLightBackground = currentPage === 'cart' || currentPage === 'checkout' || 
+                                   location.pathname === '/checkout' || 
+                                   (location.pathname === '/' && currentPage === 'cart');
+        
+        // Use dark text on light backgrounds, white text on dark backgrounds  
+        return isOnLightBackground ? 'text-black' : 'text-white';
     };
 
     const textColorClass = getContrastTextColor();
@@ -1536,7 +1541,7 @@ export default function App() {
       )}
       <style>{style}</style>
       <div className="bg-white min-h-screen pb-12">
-        <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={!isHome} />
+        <Header onMobileMenuOpen={() => setIsMobileMenuOpen(true)} setIsMegaMenuOpen={setIsMegaMenuOpen} onSearchOpen={() => setIsSearchOpen(true)} onWishlistOpen={() => setCurrentPage('wishlist')} onCartOpen={() => setIsCartOpen(true)} onNavigate={setCurrentPage} cartItemCount={cartItems.length} wishlistCount={wishlist.length} forceSolid={!isHome} currentPage={currentPage} />
         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} onNavigate={setCurrentPage}/>
         <SearchOverlay
           isOpen={isSearchOpen}
