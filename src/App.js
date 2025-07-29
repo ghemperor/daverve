@@ -1,9 +1,14 @@
-   import React, { useState, useEffect, useMemo, useRef } from 'react';
+   import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { ArrowDown, Search, Heart, User, ShoppingCart, Menu, X, ChevronDown, Mail, Plus, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Routes, Route, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import ScrollToTop from './ScrollToTop';
 import SizeChatBot from './SizeChatBot';
 import Select from 'react-select';
+import ErrorBoundary from './components/ErrorBoundary';
+import OptimizedImage from './components/OptimizedImage';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import { useDebounce } from './hooks/useDebounce';
+import { ProductCardSkeleton } from './components/LoadingSpinner';
 
 // --- Dữ liệu giả lập (Mock Data) ---
 const products = [
@@ -111,7 +116,7 @@ const formatPrice = (price) => {
 };
 
 // Sửa ProductCard để click vào ảnh sẽ chuyển route
-const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickViewOpen }) => {
+const ProductCard = memo(({ product, onAddToWishlist, wishlist, onAddToCart, onQuickViewOpen }) => {
     const hasOutOfStockSize = useMemo(() => {
         return product.variants.some(s => !s.inStock);
     }, [product.variants]);
@@ -161,8 +166,8 @@ const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickV
                     ))}
                 </div>
             )}
-            <img src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0" />
-            <img src={product.imageUrlBack} alt={`${product.name} (mặt sau)`} className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
+            <OptimizedImage src={product.imageUrl} alt={product.name} className="h-full w-full object-contain transition-opacity duration-500 ease-in-out group-hover:opacity-0" />
+            <OptimizedImage src={product.imageUrlBack} alt={`${product.name} (mặt sau)`} className="absolute inset-0 h-full w-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
             <div className="absolute bottom-4 left-0 right-0 px-4 flex flex-col sm:flex-row items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} className="w-full sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center">XEM NHANH</button>
                 <button onClick={e => { e.stopPropagation(); onQuickViewOpen(product); }} disabled={isCompletelyOutOfStock} className="w-full sm:flex-grow sm:w-32 bg-black text-white text-xs font-bold py-2.5 min-h-[44px] rounded-sm text-center hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">MUA NGAY</button>
@@ -188,7 +193,7 @@ const ProductCard = ({ product, onAddToWishlist, wishlist, onAddToCart, onQuickV
           </div>
         </div>
     );
-};
+});
 
 const MobileMenu = ({ isOpen, onClose, onNavigate }) => {
     const [openSubMenu, setOpenSubMenu] = useState(null);
@@ -1288,8 +1293,8 @@ export default function App() {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState('featured');
-  const [wishlist, setWishlist] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
+  const [wishlist, setWishlist] = useLocalStorage('wishlist', []);
+  const [cartItems, setCartItems] = useLocalStorage('cartItems', []);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
   const [lastAddedItem, setLastAddedItem] = useState(null);
@@ -1298,6 +1303,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const location = useLocation();
   const isHome = location.pathname === '/';
   const navigate = useNavigate();
@@ -1455,7 +1461,7 @@ export default function App() {
   };
 
   return (
-      <>
+      <ErrorBoundary>
       <ScrollToTop />
       {toastMessage && (
         <div className="fixed top-6 right-6 z-[200] bg-black text-white px-6 py-3 rounded shadow-lg animate-fade-in">
@@ -1516,6 +1522,6 @@ export default function App() {
         <Marquee />
         <SizeChatBot products={products} />
       </div>
-    </>
+    </ErrorBoundary>
   );
 }

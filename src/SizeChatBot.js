@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { useLocalStorage } from './hooks/useLocalStorage';
 
 // Bảng size demo
 const sizeChart = [
@@ -57,7 +59,7 @@ async function askGeminiV3(question) {
 
 const SizeChatBot = ({ products = [] }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useLocalStorage('chatHistory', [
     {
       id: 1,
       type: 'bot',
@@ -68,6 +70,12 @@ const SizeChatBot = ({ products = [] }) => {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationContext, setConversationContext] = useLocalStorage('chatContext', {
+    userHeight: null,
+    userWeight: null,
+    preferredStyles: [],
+    previousRecommendations: []
+  });
   // Gợi ý sản phẩm dựa trên từ khóa
   const [suggestedProducts, setSuggestedProducts] = useState([]);
 
@@ -165,52 +173,89 @@ const SizeChatBot = ({ products = [] }) => {
     return filtered.slice(0, 3);
   }
 
-  const generateBotReply = async (userInput) => {
-    const text = userInput.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
+  const generateBotReply = useCallback(async (userInput) => {
+    try {
+      const text = userInput.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
 
-    // Tìm chiều cao
-    let height = null;
-    // 1m76, 1.76m, 176cm, 176
-    const mMatch = text.match(/(\d{1,2})\s*m\s*(\d{1,2})/); // 1m76
-    const mDotMatch = text.match(/(\d{1,2}\.\d{1,2})\s*m/); // 1.76m
-    const cmMatch = text.match(/(1\d{2}|2[0-1]\d)\s*cm/); // 176cm
-    const justNumMatch = text.match(/(1\d{2}|2[0-1]\d)(?![\d\.]*m)/); // 176 (không đi kèm m)
+      // Tìm chiều cao
+      let height = null;
+      // 1m76, 1.76m, 176cm, 176
+      const mMatch = text.match(/(\d{1,2})\s*m\s*(\d{1,2})/); // 1m76
+      const mDotMatch = text.match(/(\d{1,2}\.\d{1,2})\s*m/); // 1.76m
+      const cmMatch = text.match(/(1\d{2}|2[0-1]\d)\s*cm/); // 176cm
+      const justNumMatch = text.match(/(1\d{2}|2[0-1]\d)(?![\d\.]*m)/); // 176 (không đi kèm m)
 
-    if (mMatch) {
-      height = parseInt(mMatch[1]) * 100 + parseInt(mMatch[2]);
-    } else if (mDotMatch) {
-      height = Math.round(parseFloat(mDotMatch[1]) * 100);
-    } else if (cmMatch) {
-      height = parseInt(cmMatch[1]);
-    } else if (justNumMatch) {
-      height = parseInt(justNumMatch[1]);
-    }
-
-    // Tìm cân nặng
-    let weight = null;
-    const kgMatch = text.match(/(\d{2,3})\s*kg/); // 55kg
-    const weightNumMatch = text.match(/(\d{2,3})(?![\d\.]*cm|[\d\.]*m)/); // 55 (không đi kèm cm/m)
-    if (kgMatch) {
-      weight = parseInt(kgMatch[1]);
-    } else if (weightNumMatch) {
-      // Đảm bảo không trùng với chiều cao
-      if (!height || parseInt(weightNumMatch[1]) !== height) {
-        weight = parseInt(weightNumMatch[1]);
+      if (mMatch) {
+        height = parseInt(mMatch[1]) * 100 + parseInt(mMatch[2]);
+      } else if (mDotMatch) {
+        height = Math.round(parseFloat(mDotMatch[1]) * 100);
+      } else if (cmMatch) {
+        height = parseInt(cmMatch[1]);
+      } else if (justNumMatch) {
+        height = parseInt(justNumMatch[1]);
       }
-    }
 
-    if (height && weight) {
-      if (height < 140 || height > 210 || weight < 30 || weight > 150) {
-        return `Thông tin bạn nhập nằm ngoài phạm vi tư vấn (140-210cm, 30-150kg). Vui lòng kiểm tra lại.`;
+      // Tìm cân nặng
+      let weight = null;
+      const kgMatch = text.match(/(\d{2,3})\s*kg/); // 55kg
+      const weightNumMatch = text.match(/(\d{2,3})(?![\d\.]*cm|[\d\.]*m)/); // 55 (không đi kèm cm/m)
+      if (kgMatch) {
+        weight = parseInt(kgMatch[1]);
+      } else if (weightNumMatch) {
+        // Đảm bảo không trùng với chiều cao
+        if (!height || parseInt(weightNumMatch[1]) !== height) {
+          weight = parseInt(weightNumMatch[1]);
+        }
       }
-      const recommendedSize = getSizeRecommendation(height, weight);
-      return `Chiều cao: ${height}cm\nCân nặng: ${weight}kg\n\nSize phù hợp với bạn là: **${recommendedSize}**\n\nLưu ý: Đây chỉ là gợi ý, bạn nên tham khảo bảng size chi tiết hoặc liên hệ nhân viên tư vấn.`;
-    }
 
-    // Nếu không phải câu hỏi về size, gọi Gemini
-            const geminiReply = await askGeminiV3(userInput + ". Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.");
-    return geminiReply;
-  };
+      // Cập nhật context nếu có thông tin mới
+      const newContext = { ...conversationContext };
+      if (height) newContext.userHeight = height;
+      if (weight) newContext.userWeight = weight;
+      
+      if (height && weight) {
+        if (height < 140 || height > 210 || weight < 30 || weight > 150) {
+          return `Thông tin bạn nhập nằm ngoài phạm vi tư vấn (140-210cm, 30-150kg). Vui lòng kiểm tra lại.`;
+        }
+        const recommendedSize = getSizeRecommendation(height, weight);
+        
+        // Lưu recommendation vào context
+        newContext.previousRecommendations.push({
+          size: recommendedSize,
+          timestamp: new Date(),
+          height,
+          weight
+        });
+        
+        setConversationContext(newContext);
+        
+        return `Chiều cao: ${height}cm\nCân nặng: ${weight}kg\n\nSize phù hợp với bạn là: **${recommendedSize}**\n\nLưu ý: Đây chỉ là gợi ý, bạn nên tham khảo bảng size chi tiết hoặc liên hệ nhân viên tư vấn.`;
+      }
+
+      // Cập nhật context nếu có thông tin mới
+      if (height || weight) {
+        setConversationContext(newContext);
+      }
+
+      // Tạo context thông minh cho Gemini
+      const contextInfo = newContext.userHeight && newContext.userWeight 
+        ? `Thông tin người dùng: Chiều cao ${newContext.userHeight}cm, Cân nặng ${newContext.userWeight}kg. `
+        : '';
+      
+      const previousRecommendations = newContext.previousRecommendations.length > 0
+        ? `Các gợi ý trước: ${newContext.previousRecommendations.slice(-2).map(r => r.size).join(', ')}. `
+        : '';
+
+      // Nếu không phải câu hỏi về size, gọi Gemini
+      const enhancedPrompt = `${contextInfo}${previousRecommendations}${userInput}. Trả lời ngắn gọn, thân thiện, chuyên nghiệp bằng tiếng Việt. Nếu liên quan đến thời trang, hãy đưa ra lời khuyên cụ thể.`;
+      
+      const geminiReply = await askGeminiV3(enhancedPrompt);
+      return geminiReply;
+    } catch (error) {
+      console.error('Error in generateBotReply:', error);
+      return 'Xin lỗi, tôi đang gặp một chút vấn đề kỹ thuật. Vui lòng thử lại sau nhé!';
+    }
+  }, [conversationContext, setConversationContext]);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -341,6 +386,18 @@ const SizeChatBot = ({ products = [] }) => {
                 </div>
               </div>
             ))}
+            
+            {/* Loading message */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 text-gray-800 rounded-lg px-3 py-2 max-w-xs">
+                  <div className="flex items-center gap-2">
+                    <LoadingSpinner size="sm" />
+                    <span className="text-sm">Đang suy nghĩ...</span>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Gợi ý sản phẩm sau khi bot trả lời */}
             {suggestedProducts.length > 0 && (
               <div className="flex justify-start">
