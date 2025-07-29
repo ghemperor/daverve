@@ -698,7 +698,7 @@ const QuickViewModal = ({ product, onClose, onAddToCart }) => {
 
                 {/* Full view modal - Enhanced */}
                 {isFullViewOpen && (
-                    <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
+                    <div className="fixed inset-0 z-[130] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center animate-fade-in" onClick={() => setIsFullViewOpen(false)} tabIndex={-1}>
                         {/* Enhanced close button */}
                         <button 
                             onClick={() => setIsFullViewOpen(false)} 
