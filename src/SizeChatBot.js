@@ -14,8 +14,9 @@ const sizeChart = [
 async function askGemini(question) {
   try {
     console.log('Calling Gemini API with question:', question);
+    console.log('Using API URL: /api/gemini (relative path)');
     
-    const res = await fetch('/api/gemini', {
+    const res = await fetch(`/api/gemini?t=${Date.now()}`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
