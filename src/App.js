@@ -1229,7 +1229,6 @@ function ProductDetailPage({ products, onAddToCart }) {
           </div>
         </div>
         {/* Thông tin chi tiết */}
-<<<<<<< HEAD
         <div className={`w-full md:w-2/5 max-w-full flex flex-col gap-2 justify-start pt-0 px-3 py-2 ${showFullDesc ? 'overflow-y-auto' : 'overflow-hidden'} max-h-full`}>
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
           <div className="flex md:hidden gap-2 items-center mb-1 justify-center">
@@ -1240,30 +1239,12 @@ function ProductDetailPage({ products, onAddToCart }) {
           {/* Tên sản phẩm */}
           <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
           <div className="text-sm md:text-lg font-bold mb-1">{formatPrice(product.price)}</div>
-=======
-        <div className="w-full md:w-2/5 flex flex-col gap-3 justify-center pt-0 mx-auto md:mx-0 h-full overflow-y-auto px-4">
-          {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
-          <div className="flex md:hidden gap-4 items-center mb-2 justify-center">
-            {images.map((img, idx) => (
-              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-14 h-14 object-contain rounded" />
-              </button>
-            ))}
-          </div>
-          {/* Tên sản phẩm */}
-          <div className="text-xl md:text-2xl font-extrabold uppercase mb-2 tracking-tight break-words" style={{fontSize: 'clamp(1.2rem, 2vw, 1.8rem)'}}>{product.name}</div>
-          <div className="text-lg md:text-xl font-bold mb-2" style={{fontSize: 'clamp(1rem, 1.5vw, 1.3rem)'}}>{formatPrice(product.price)}</div>
->>>>>>> cursor/review-my-code-f667
           {product.originalPrice && (
             <div className="text-xs md:text-base text-gray-500 line-through mb-1">{formatPrice(product.originalPrice)}</div>
           )}
           {/* Chọn màu */}
           <div className="mb-1">
-<<<<<<< HEAD
             <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-=======
-            <div className="font-bold text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
->>>>>>> cursor/review-my-code-f667
             <div className="flex gap-2 flex-wrap">
               {colorOptions.map((c, idx) => (
                 <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
@@ -1278,11 +1259,7 @@ function ProductDetailPage({ products, onAddToCart }) {
             </div>
             <div className="flex gap-2 flex-wrap">
               {sizeOptions.map((s) => (
-<<<<<<< HEAD
                 <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
-=======
-                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[44px] w-12 px-0 py-2 border rounded text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
->>>>>>> cursor/review-my-code-f667
                   {s.size}
                 </button>
               ))}
@@ -1297,14 +1274,11 @@ function ProductDetailPage({ products, onAddToCart }) {
               <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
             </div>
           </div>
-<<<<<<< HEAD
           {/* Actions trên mobile */}
           <div className="md:hidden flex gap-2 mt-2 w-full">
             <button className="w-full px-3 py-2 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
             <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
           </div>
-=======
->>>>>>> cursor/review-my-code-f667
           {/* Shipping & Returns */}
           <div className="border-t border-black w-full mx-0 pt-1">
             <div className="font-bold text-sm md:text-lg tracking-widest mt-1 mb-1">VẬN CHUYỂN & ĐỔI TRẢ</div>
