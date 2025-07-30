@@ -1200,7 +1200,7 @@ function ProductDetailPage({ products, onAddToCart }) {
     <div className="min-h-screen bg-white pt-8 md:pt-0 pb-8 md:pb-0 flex justify-center md:items-center">
       <div className="w-full max-w-[95vw] md:max-w-[80vw] px-2 md:px-0 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-4">
         {/* Thumbnails dọc bên trái - chỉ hiện desktop */}
-        <div className="hidden md:flex flex-col gap-3 items-center justify-start h-full flex-shrink-0" style={{width: '6%', marginTop: '-2rem'}}>
+        <div className="hidden md:flex flex-col gap-3 items-center justify-start h-full flex-shrink-0" style={{width: '6%', maxHeight: '10vh', marginTop: '-3rem'}}>
           {images.map((img, idx) => (
             <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`} style={{width: '85%'}}>
               <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded w-full h-auto" style={{aspectRatio: '1/1'}} />
@@ -1269,12 +1269,12 @@ function ProductDetailPage({ products, onAddToCart }) {
         
         {/* Thông tin chi tiết */}
         <div className="flex flex-col gap-4 justify-start md:justify-center pt-2 md:pt-0 px-3 py-4 md:py-0 w-full md:w-[40%] md:h-full items-center">
-          <div className="w-full">
+          <div className="w-full text-center">
             {/* Tên sản phẩm - luôn ở trên cùng */}
             <div className="mb-4">
-              <div className="text-lg md:text-2xl font-extrabold uppercase mb-2 tracking-tight break-words text-left">{product.name}</div>
+              <div className="text-lg md:text-2xl font-extrabold uppercase mb-2 tracking-tight break-words text-left md:text-center">{product.name}</div>
               {/* Giá chính và giá sale cùng hàng */}
-              <div className="flex items-center gap-3 mb-1 justify-start">
+              <div className="flex items-center gap-3 mb-1 justify-start md:justify-center">
                 <div className="text-base md:text-lg font-bold">{formatPrice(product.price)}</div>
                 {product.originalPrice && (
                   <div className="text-sm md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
@@ -1285,8 +1285,8 @@ function ProductDetailPage({ products, onAddToCart }) {
 
             {/* Chọn màu */}
             <div className="mb-4">
-              <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="font-bold text-xs md:text-sm mb-2 tracking-widest text-left md:text-center">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
+              <div className="flex gap-2 flex-wrap justify-start md:justify-center">
                 {colorOptions.map((c, idx) => (
                   <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
                 ))}
@@ -1294,11 +1294,11 @@ function ProductDetailPage({ products, onAddToCart }) {
             </div>
             {/* Chọn size + nút xem bảng size */}
             <div className="mb-4">
-              <div className="flex items-center gap-2 md:gap-4 mb-2">
+              <div className="flex items-center gap-2 md:gap-4 mb-2 justify-start md:justify-center">
                 <div className="font-bold text-xs md:text-sm tracking-widest">KÍCH THƯỚC</div>
                 <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap justify-start md:justify-center">
                 {sizeOptions.map((s) => (
                   <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
                     {s.size}
@@ -1308,8 +1308,8 @@ function ProductDetailPage({ products, onAddToCart }) {
             </div>
             {/* Số lượng */}
             <div className="mb-4">
-              <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">SỐ LƯỢNG</div>
-              <div className="flex items-center border rounded-md w-fit">
+              <div className="font-bold text-xs md:text-sm mb-2 tracking-widest text-left md:text-center">SỐ LƯỢNG</div>
+              <div className="flex items-center border rounded-md w-fit mx-0 md:mx-auto">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 md:px-3 py-1">-</button>
                 <span className="px-3 md:px-4 text-base md:text-lg">{quantity}</span>
                 <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
