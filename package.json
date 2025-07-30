@@ -19,12 +19,13 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "FAST_REFRESH=true CHOKIDAR_USEPOLLING=false react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "proxy": "node gemini-proxy.js",
-    "dev": "concurrently \"npm:start\" \"npm run proxy\""
+    "dev": "concurrently --kill-others \"npm:start\" \"npm run proxy\"",
+    "dev:watch": "FAST_REFRESH=true CHOKIDAR_USEPOLLING=false concurrently --kill-others \"npm:start\" \"npm run proxy\""
   },
   "eslintConfig": {
     "extends": [
