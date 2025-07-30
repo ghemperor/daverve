@@ -1129,7 +1129,7 @@ function ProductDetailPage({ products, onAddToCart }) {
   const [selectedSize, setSelectedSize] = React.useState(null);
   const [quantity, setQuantity] = React.useState(1);
   const [showDesc, setShowDesc] = React.useState(true);
-  const [showDetails, setShowDetails] = React.useState(false);
+  const [showDetails, setShowDetails] = React.useState(true);
   const [showSizeTable, setShowSizeTable] = React.useState(false);
 
   // Ảnh
@@ -1201,16 +1201,16 @@ function ProductDetailPage({ products, onAddToCart }) {
     <div className="min-h-screen bg-white pt-28 flex justify-center">
       <div className="w-full md:max-w-[75vw] max-h-[90vh] px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-start gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white overflow-y-auto">
         {/* Cụm thumbnail + ảnh sản phẩm */}
-        <div className="flex flex-row items-start gap-2 w-full md:w-3/5 max-w-[520px] mx-auto md:mx-0">
+        <div className="flex flex-row items-start gap-2 w-full md:w-3/5 max-w-[50vw] mx-auto md:mx-0">
           <div className="hidden md:flex flex-col gap-4 items-start justify-start">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-20 h-20 object-contain rounded" />
+                <img src={img} alt={`Preview ${idx+1}`} className="w-16 h-16 object-contain rounded" />
               </button>
             ))}
           </div>
-          <div className="flex flex-col items-center justify-start w-auto max-w-[400px] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[500px] w-full bg-white" style={{maxWidth:'100%', minHeight:'320px'}} />
+          <div className="flex flex-col items-center justify-start w-auto max-w-[40vw] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
+            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[70vh] w-full bg-white" style={{maxWidth:'100%', minHeight:'40vh'}} />
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
               onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
@@ -1229,7 +1229,7 @@ function ProductDetailPage({ products, onAddToCart }) {
           </div>
         </div>
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-2/5 max-w-md flex flex-col gap-4 justify-start pt-0 mx-auto md:mx-0">
+        <div className="w-full md:w-2/5 max-w-[20vw] flex flex-col gap-3 justify-start pt-0 mx-auto md:mx-0 max-h-[85vh] overflow-y-auto">
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
           <div className="flex md:hidden gap-4 items-center mb-2 justify-center">
             {images.map((img, idx) => (
@@ -1239,8 +1239,8 @@ function ProductDetailPage({ products, onAddToCart }) {
             ))}
           </div>
           {/* Tên sản phẩm */}
-          <div className="text-2xl md:text-3xl font-extrabold uppercase mb-2 tracking-tight break-words">{product.name}</div>
-          <div className="text-lg md:text-xl font-bold mb-2">{formatPrice(product.price)}</div>
+          <div className="text-xl md:text-2xl font-extrabold uppercase mb-2 tracking-tight break-words" style={{fontSize: 'clamp(1.2rem, 2vw, 1.8rem)'}}>{product.name}</div>
+          <div className="text-lg md:text-xl font-bold mb-2" style={{fontSize: 'clamp(1rem, 1.5vw, 1.3rem)'}}>{formatPrice(product.price)}</div>
           {product.originalPrice && (
             <div className="text-base text-gray-500 line-through mb-2">{formatPrice(product.originalPrice)}</div>
           )}
