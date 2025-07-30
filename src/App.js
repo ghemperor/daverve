@@ -1198,8 +1198,8 @@ function ProductDetailPage({ products, onAddToCart }) {
 
   // UI
   return (
-    <div className="min-h-screen bg-white pt-28 flex justify-center items-center">
-      <div className="w-full md:max-w-[75vw] px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-12 overflow-y-auto" style={{maxHeight: 'calc(100vh - 7rem - 3rem)'}}>
+    <div className="min-h-screen bg-white pt-28 flex justify-center">
+      <div className="w-full md:max-w-[75vw] px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white overflow-y-auto" style={{height: 'calc(100vh - 7rem)', marginTop: '0'}}>
         {/* Cụm thumbnail + ảnh sản phẩm */}
         <div className="flex flex-row items-center gap-2 w-full md:w-3/5 h-full mx-auto md:mx-0">
           <div className="hidden md:flex flex-col gap-4 items-center justify-center h-full">
@@ -1210,7 +1210,7 @@ function ProductDetailPage({ products, onAddToCart }) {
             ))}
           </div>
           <div className="flex flex-col items-center justify-center w-full group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg w-full bg-white" style={{maxHeight:'calc(100vh - 10rem)', minHeight:'50vh'}} />
+            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg w-full bg-white" style={{height:'auto', maxHeight:'100%'}} />
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
               onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
@@ -1229,7 +1229,7 @@ function ProductDetailPage({ products, onAddToCart }) {
           </div>
         </div>
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-2/5 flex flex-col gap-3 justify-center pt-0 mx-auto md:mx-0 h-full overflow-y-auto" style={{minHeight:'calc(100vh - 10rem)'}}>
+        <div className="w-full md:w-2/5 flex flex-col gap-3 justify-center pt-0 mx-auto md:mx-0 h-full overflow-y-auto">
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
           <div className="flex md:hidden gap-4 items-center mb-2 justify-center">
             {images.map((img, idx) => (
