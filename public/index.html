@@ -7,8 +7,24 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="MEVY - Streetwear brand chất lượng cao. Khám phá bộ sưu tập áo hoodie, t-shirt, sneakers và phụ kiện streetwear phong cách urban hiện đại."
     />
+    <meta name="keywords" content="streetwear, hoodie, t-shirt, sneakers, urban fashion, street style, MEVY streetwear, thời trang đường phố" />
+    <meta name="author" content="MEVY Streetwear" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MEVY - Streetwear Brand Chất Lượng Cao" />
+    <meta property="og:description" content="Khám phá bộ sưu tập streetwear phong cách urban hiện đại tại MEVY - hoodie, t-shirt, sneakers và phụ kiện street style" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.jpg" />
+    <meta property="og:url" content="https://daverve.vercel.app" />
+    <meta property="og:site_name" content="MEVY Streetwear" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MEVY - Streetwear Brand Chất Lượng Cao" />
+    <meta name="twitter:description" content="Khám phá bộ sưu tập streetwear phong cách urban hiện đại - hoodie, t-shirt, sneakers và street style" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/og-image.jpg" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -25,7 +41,54 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
       <script src="https://cdn.tailwindcss.com"></script>
-    <title>React App</title>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ClothingStore",
+      "name": "MEVY",
+      "description": "Streetwear brand chất lượng cao với phong cách urban hiện đại",
+      "url": "https://daverve.vercel.app",
+      "logo": "https://daverve.vercel.app/logo.png",
+      "sameAs": [
+        "https://www.facebook.com/mevy",
+        "https://www.instagram.com/mevy"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Streetwear Collection",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Hoodie streetwear",
+              "category": "Streetwear"
+            }
+          },
+          {
+            "@type": "Offer", 
+            "itemOffered": {
+              "@type": "Product",
+              "name": "T-shirt urban style",
+              "category": "Streetwear"
+            }
+          },
+          {
+            "@type": "Offer", 
+            "itemOffered": {
+              "@type": "Product",
+              "name": "Sneakers & Accessories",
+              "category": "Footwear"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+    
+    <title>MEVY - Streetwear Brand | Hoodie, T-shirt & Urban Fashion</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -22,6 +22,12 @@ app.use((req, res, next) => {
 
 app.post('/api/gemini', async (req, res) => {
   try {
+    // Check API key first
+    if (!GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY not found in environment variables');
+      return res.status(500).json({ error: 'API key not configured on server' });
+    }
+
     const { contents } = req.body;
     if (!contents) {
       return res.status(400).json({ error: "Missing 'contents' in request body" });
@@ -47,4 +53,9 @@ app.post('/api/gemini', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Gemini proxy server running on port ${PORT}`);
+  console.log('API Key loaded:', !!GEMINI_API_KEY);
+  console.log('API Key length:', GEMINI_API_KEY ? GEMINI_API_KEY.length : 0);
+  if (GEMINI_API_KEY) {
+    console.log('API Key prefix:', GEMINI_API_KEY.substring(0, 15) + '...');
+  }
 }); 

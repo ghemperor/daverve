@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// Bảng size demo
+// Size chart data
 const sizeChart = [
   { minHeight: 150, maxHeight: 159, minWeight: 40, maxWeight: 49, size: "XS" },
   { minHeight: 155, maxHeight: 164, minWeight: 45, maxWeight: 54, size: "S" },
@@ -11,226 +11,254 @@ const sizeChart = [
   { minHeight: 180, maxHeight: 200, minWeight: 75, maxWeight: 120, size: "XXXL" },
 ];
 
-async function askGeminiV3(question) {
+// Simple localStorage utility
+const storage = {
+  get: (key, defaultValue = null) => {
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  },
+  set: (key, value) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      // Fail silently
+    }
+  }
+};
+
+// Mock responses for when API is down
+const mockResponses = {
+  'xin chào': 'Xin chào! Tôi là trợ lý tư vấn thời trang AI. Tôi có thể giúp bạn chọn size phù hợp và tư vấn phong cách. Bạn cần hỗ trợ gì?',
+  'mùa hè': 'Mùa hè nên chọn các chất liệu thoáng mát như:\n\n🌿 **Cotton**: Thấm hút mồ hôi tốt\n🌿 **Linen**: Siêu thoáng mát\n🌿 **Modal**: Mềm mại, mát mẻ\n🌿 **Bamboo**: Kháng khuẩn tự nhiên\n\nTránh: Polyester, vải dày.',
+  'da ngăm': 'Da ngăm rất hợp với:\n\n✨ **Màu sáng**: Trắng, kem, pastel\n✨ **Màu đất**: Nâu, be, camel\n✨ **Màu jewel**: Ngọc lục bảo, sapphire\n✨ **Màu coral**: Hồng cam, đào\n\nTránh: Màu quá tối.',
+  'cao hơn': 'Để trông cao hơn:\n\n📏 **Quần high-waist**: Tạo chân dài\n📏 **Áo crop-top**: Tỷ lệ đẹp hơn\n📏 **Giày cao gót**: Tăng chiều cao\n📏 **Sọc dọc**: Hiệu ứng thon dài\n📏 **Tông màu đồng bộ**: Line liền mạch',
+  'gầy': 'Người gầy nên chọn:\n\n💪 **Áo có cấu trúc**: Blazer, vest\n💪 **Layer nhiều lớp**: Tạo độ dày\n💪 **Họa tiết to**: Tạo thể tích\n💪 **Màu sáng**: Cảm giác đầy đặn\n💪 **Chất liệu dày**: Denim, tweed'
+};
+
+// Get size recommendation
+const getSizeRecommendation = (height, weight) => {
+  const possibleSizes = sizeChart.filter(item => 
+    height >= item.minHeight && height <= item.maxHeight
+  );
+  
+  if (possibleSizes.length === 0) {
+    return 'Không tìm thấy size phù hợp';
+  }
+  
+  let bestSize = possibleSizes[0];
+  let minWeightDiff = Math.abs(weight - (bestSize.minWeight + bestSize.maxWeight) / 2);
+  
+  for (let i = 1; i < possibleSizes.length; i++) {
+    const avgWeight = (possibleSizes[i].minWeight + possibleSizes[i].maxWeight) / 2;
+    const diff = Math.abs(weight - avgWeight);
+    if (diff < minWeightDiff) {
+      bestSize = possibleSizes[i];
+      minWeightDiff = diff;
+    }
+  }
+  
+  let warning = '';
+  if (weight < bestSize.minWeight) warning = ' (Cân nặng thấp hơn khuyến nghị)';
+  if (weight > bestSize.maxWeight) warning = ' (Cân nặng cao hơn khuyến nghị)';
+  
+  return bestSize.size + warning;
+};
+
+// AI API call
+const callAI = async (question) => {
   try {
-    console.log('Calling Gemini API with question:', question);
+    // Check for mock responses first
+    const lowerQuestion = question.toLowerCase();
+    for (const [key, response] of Object.entries(mockResponses)) {
+      if (lowerQuestion.includes(key)) {
+        return response;
+      }
+    }
     
-    // Determine API URL based on environment
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const apiUrl = isLocal ? 'http://localhost:4000/api/gemini' : `/api/gemini?v=${Date.now()}`;
-    
-    console.log('Environment detection:', { hostname: window.location.hostname, isLocal });
-    console.log('Using API URL:', apiUrl);
+    // Try real API
+    const apiUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:4000/api/gemini' 
+      : '/api/gemini';
     
     const res = await fetch(apiUrl, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: question }] }]
       })
     });
     
-    console.log('Response status:', res.status);
-    
     if (!res.ok) {
-      console.error('HTTP Error:', res.status, res.statusText);
-      return `Lỗi kết nối API (${res.status}): ${res.statusText}`;
+      return "Hiện tại dịch vụ AI đang bảo trì. Tôi vẫn có thể tư vấn size và câu hỏi cơ bản. Hãy thử hỏi về chiều cao, cân nặng!";
     }
     
     const data = await res.json();
-    console.log('API Response:', data);
-    
-    if (data.error) {
-      console.error('Gemini API Error:', data.error);
-      return `Lỗi Gemini: ${data.error}`;
-    }
-    
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chưa có câu trả lời phù hợp.";
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chưa hiểu câu hỏi của bạn.";
     
   } catch (error) {
-    console.error('Network/Parse Error:', error);
-    return `Lỗi kết nối: ${error.message}. Vui lòng thử lại sau.`;
+    return "Tôi đang gặp vấn đề kỹ thuật. Hãy thử hỏi về size hoặc các câu hỏi thời trang cơ bản!";
   }
-}
+};
 
-const SizeChatBot = ({ products = [] }) => {
+// Generate bot reply
+const generateReply = async (userInput) => {
+  const text = userInput.toLowerCase().trim();
+  
+  // Check for height/weight pattern
+  const heightMatch = text.match(/(\d{1,3})\s*(?:cm|chiều cao)/i) || 
+                     text.match(/(\d)\s*m\s*(\d{1,2})/i) ||
+                     text.match(/(\d\.\d{1,2})\s*m/i);
+  const weightMatch = text.match(/(\d{2,3})\s*(?:kg|cân nặng|kilo)/i);
+  
+  let height = null, weight = null;
+  
+  if (heightMatch) {
+    if (heightMatch[2]) { // Format: 1m70
+      height = parseInt(heightMatch[1]) * 100 + parseInt(heightMatch[2]);
+    } else if (text.includes('.')) { // Format: 1.70m
+      height = Math.round(parseFloat(heightMatch[1]) * 100);
+    } else { // Format: 170cm
+      height = parseInt(heightMatch[1]);
+    }
+  }
+  
+  if (weightMatch) {
+    weight = parseInt(weightMatch[1]);
+  }
+  
+  // Size recommendation
+  if (height && weight) {
+    if (height < 140 || height > 210 || weight < 30 || weight > 150) {
+      return "Thông tin nằm ngoài phạm vi tư vấn (140-210cm, 30-150kg). Vui lòng kiểm tra lại.";
+    }
+    const size = getSizeRecommendation(height, weight);
+    return `Với chiều cao ${height}cm và cân nặng ${weight}kg:\n\n🎯 **Size phù hợp: ${size}**\n\nLưu ý: Đây là gợi ý, bạn nên tham khảo bảng size chi tiết của từng sản phẩm.`;
+  }
+  
+  // Call AI for other questions
+  return await callAI(userInput);
+};
+
+const SizeChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      type: 'bot',
-      text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
-  const messagesEndRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
-  // Gợi ý sản phẩm dựa trên từ khóa
-  const [suggestedProducts, setSuggestedProducts] = useState([]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  const messagesEndRef = useRef(null);
+  
+  // Initialize messages
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const getSizeRecommendation = (height, weight) => {
-    // Tìm tất cả size phù hợp chiều cao
-    const possibleSizes = sizeChart.filter(item => height >= item.minHeight && height <= item.maxHeight);
-    if (possibleSizes.length === 0) return 'Không tìm thấy size phù hợp';
-    // Tìm size có cân nặng gần nhất
-    let bestSize = possibleSizes[0];
-    let minWeightDiff = Math.abs(weight - (bestSize.minWeight + bestSize.maxWeight) / 2);
-    for (let i = 1; i < possibleSizes.length; i++) {
-      const avgWeight = (possibleSizes[i].minWeight + possibleSizes[i].maxWeight) / 2;
-      const diff = Math.abs(weight - avgWeight);
-      if (diff < minWeightDiff) {
-        bestSize = possibleSizes[i];
-        minWeightDiff = diff;
-      }
+    const saved = storage.get('chatHistory');
+    if (saved && Array.isArray(saved) && saved.length > 0) {
+      setMessages(saved);
+    } else {
+      const welcomeMessage = {
+        id: 'welcome',
+        type: 'bot',
+        text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
+        timestamp: new Date().toISOString()
+      };
+      setMessages([welcomeMessage]);
+      storage.set('chatHistory', [welcomeMessage]);
     }
-    // Kiểm tra cân nặng có nằm ngoài khoảng không
-    let warning = '';
-    if (weight < bestSize.minWeight) warning = ' (Cân nặng của bạn thấp hơn mức khuyến nghị cho size này)';
-    if (weight > bestSize.maxWeight) warning = ' (Cân nặng của bạn cao hơn mức khuyến nghị cho size này)';
-    return bestSize.size + warning;
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
-
+  }, []);
+  
+  // Save messages to storage
+  useEffect(() => {
+    if (messages.length > 0) {
+      storage.set('chatHistory', messages);
+    }
+  }, [messages]);
+  
+  // Auto scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+  
+  // Send message
+  const sendMessage = async () => {
+    if (!inputText.trim() || isLoading) return;
+    
     const userMessage = {
-      id: messages.length + 1,
+      id: `user_${Date.now()}`,
       type: 'user',
-      text: inputText,
-      timestamp: new Date()
+      text: inputText.trim(),
+      timestamp: new Date().toISOString()
     };
-
+    
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
-
-    // Xử lý logic bot reply
     setIsLoading(true);
-    setTimeout(async () => {
-      const botReply = await generateBotReply(inputText);
+    
+    try {
+      const botReply = await generateReply(inputText.trim());
       const botMessage = {
-        id: messages.length + 2,
+        id: `bot_${Date.now()}`,
         type: 'bot',
         text: botReply,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, botMessage]);
-      // Sau khi bot trả lời, thử gợi ý sản phẩm
-      const found = findSuggestedProducts(inputText);
-      setSuggestedProducts(found);
+    } catch (error) {
+      const errorMessage = {
+        id: `error_${Date.now()}`,
+        type: 'bot',
+        text: 'Xin lỗi, tôi gặp vấn đề kỹ thuật. Vui lòng thử lại!',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
-
-  // Hàm lọc sản phẩm dựa trên từ khóa
-  function findSuggestedProducts(text) {
-    const lower = text.toLowerCase();
-    // Từ khóa demo: hoodie, đen, trắng, sơ mi, gầy, cao, v.v.
-    let keywords = [];
-    if (lower.includes('hoodie')) keywords.push('hoodie');
-    if (lower.includes('sơ mi') || lower.includes('shirt')) keywords.push('shirt');
-    if (lower.includes('áo')) keywords.push('áo');
-    if (lower.includes('quần')) keywords.push('quần');
-    if (lower.includes('đen')) keywords.push('đen');
-    if (lower.includes('trắng')) keywords.push('trắng');
-    if (lower.includes('gầy')) keywords.push('gầy');
-    if (lower.includes('cao')) keywords.push('cao');
-    // Lọc sản phẩm theo tên hoặc màu
-    let filtered = products;
-    if (keywords.length > 0) {
-      filtered = products.filter(p => {
-        const name = p.name.toLowerCase();
-        const variantColors = (p.variants || []).map(v => v.colorName.toLowerCase()).join(' ');
-        return keywords.some(k => name.includes(k) || variantColors.includes(k));
+  
+  // Reset chat
+  const resetChat = () => {
+    const welcomeMessage = {
+      id: 'welcome_new',
+      type: 'bot',
+      text: 'Xin chào! Tôi có thể giúp bạn chọn size phù hợp. Vui lòng cho tôi biết chiều cao (cm) và cân nặng (kg) của bạn.',
+      timestamp: new Date().toISOString()
+    };
+    setMessages([welcomeMessage]);
+    storage.set('chatHistory', [welcomeMessage]);
+    setIsLoading(false);
+  };
+  
+  // Format timestamp
+  const formatTime = (timestamp) => {
+    try {
+      return new Date(timestamp).toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit'
       });
+    } catch {
+      return '';
     }
-    // Nếu hỏi về gầy/cao, ưu tiên sản phẩm có size nhỏ/lớn
-    if (lower.includes('gầy')) {
-      filtered = filtered.filter(p => p.variants && p.variants.some(v => v.size === 'S' || v.size === 'XS'));
-    }
-    if (lower.includes('cao')) {
-      filtered = filtered.filter(p => p.variants && p.variants.some(v => v.size === 'L' || v.size === 'XL'));
-    }
-    // Trả về tối đa 3 sản phẩm gợi ý
-    return filtered.slice(0, 3);
-  }
-
-  const generateBotReply = async (userInput) => {
-    const text = userInput.toLowerCase().replace(/,/g, '.').replace(/\s+/g, ' ').trim();
-
-    // Tìm chiều cao
-    let height = null;
-    // 1m76, 1.76m, 176cm, 176
-    const mMatch = text.match(/(\d{1,2})\s*m\s*(\d{1,2})/); // 1m76
-    const mDotMatch = text.match(/(\d{1,2}\.\d{1,2})\s*m/); // 1.76m
-    const cmMatch = text.match(/(1\d{2}|2[0-1]\d)\s*cm/); // 176cm
-    const justNumMatch = text.match(/(1\d{2}|2[0-1]\d)(?![\d\.]*m)/); // 176 (không đi kèm m)
-
-    if (mMatch) {
-      height = parseInt(mMatch[1]) * 100 + parseInt(mMatch[2]);
-    } else if (mDotMatch) {
-      height = Math.round(parseFloat(mDotMatch[1]) * 100);
-    } else if (cmMatch) {
-      height = parseInt(cmMatch[1]);
-    } else if (justNumMatch) {
-      height = parseInt(justNumMatch[1]);
-    }
-
-    // Tìm cân nặng
-    let weight = null;
-    const kgMatch = text.match(/(\d{2,3})\s*kg/); // 55kg
-    const weightNumMatch = text.match(/(\d{2,3})(?![\d\.]*cm|[\d\.]*m)/); // 55 (không đi kèm cm/m)
-    if (kgMatch) {
-      weight = parseInt(kgMatch[1]);
-    } else if (weightNumMatch) {
-      // Đảm bảo không trùng với chiều cao
-      if (!height || parseInt(weightNumMatch[1]) !== height) {
-        weight = parseInt(weightNumMatch[1]);
-      }
-    }
-
-    if (height && weight) {
-      if (height < 140 || height > 210 || weight < 30 || weight > 150) {
-        return `Thông tin bạn nhập nằm ngoài phạm vi tư vấn (140-210cm, 30-150kg). Vui lòng kiểm tra lại.`;
-      }
-      const recommendedSize = getSizeRecommendation(height, weight);
-      return `Chiều cao: ${height}cm\nCân nặng: ${weight}kg\n\nSize phù hợp với bạn là: **${recommendedSize}**\n\nLưu ý: Đây chỉ là gợi ý, bạn nên tham khảo bảng size chi tiết hoặc liên hệ nhân viên tư vấn.`;
-    }
-
-    // Nếu không phải câu hỏi về size, gọi Gemini
-            const geminiReply = await askGeminiV3(userInput + ". Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.");
-    return geminiReply;
   };
-
+  
+  // Handle Enter key
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
-
-  const handleViewDetail = (productId) => {
-    window.open(`/product/${productId}`, '_blank');
-  };
-
+  
+  // Suggested questions
   const suggestedQuestions = [
-    "Tôi nên mặc size gì nếu cao 1m65 nặng 55kg?",
-    "Da ngăm nên mặc màu gì cho đẹp?",
-    "Phối đồ như thế nào để trông cao hơn?",
-    "Người gầy nên chọn kiểu áo nào?",
+    "Tôi cao 1m65 nặng 55kg",
     "Mùa hè nên mặc chất liệu gì?",
-    "Phong cách nào hợp với người trẻ năng động?"
+    "Da ngăm nên mặc màu gì?",
+    "Làm sao để trông cao hơn?",
+    "Người gầy nên mặc gì?",
+    "Xin chào"
   ];
-
+  
   return (
     <>
       {/* Chat Button */}
@@ -265,61 +293,53 @@ const SizeChatBot = ({ products = [] }) => {
                 <p className="text-xs text-gray-300">Hỗ trợ 24/7</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="ml-2 p-1 rounded hover:bg-white/20 transition-colors"
-              aria-label="Đóng chat"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={resetChat}
+                className="p-1 rounded hover:bg-white/20 transition-colors"
+                title="Reset cuộc trò chuyện"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded hover:bg-white/20 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {/* Suggested Questions as bot message (only if no user message yet) */}
+            {/* Suggested Questions */}
             {messages.filter(m => m.type === 'user').length === 0 && !isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-xs px-3 py-2 rounded-lg bg-gray-100 text-gray-800">
-                  <div className="text-xs mb-2 text-gray-600">Bạn có thể thử các câu hỏi sau:</div>
-                  <div className="flex flex-wrap gap-2">
-                    {suggestedQuestions.map((q, idx) => (
-                      <button
-                        key={idx}
-                        className="bg-white hover:bg-gray-200 text-gray-800 text-xs rounded-full px-3 py-1 border border-gray-200 transition-colors mb-1"
-                        style={{whiteSpace:'nowrap'}}
-                        onClick={async () => {
-                          setInputText("");
-                          // Gửi luôn như tin nhắn user
-                          const userMessage = {
-                            id: messages.length + 1,
-                            type: 'user',
-                            text: q,
-                            timestamp: new Date()
-                          };
-                          setMessages(prev => [...prev, userMessage]);
-                          setIsLoading(true);
-                          const botReply = await generateBotReply(q);
-                          const botMessage = {
-                            id: messages.length + 2,
-                            type: 'bot',
-                            text: botReply,
-                            timestamp: new Date()
-                          };
-                          setMessages(prev => [...prev, botMessage]);
-                          setIsLoading(false);
-                        }}
-                        disabled={isLoading}
-                      >
-                        {q}
-                      </button>
-                    ))}
-                  </div>
+              <div className="bg-gray-50 rounded-lg p-3 border">
+                <div className="text-xs mb-2 text-gray-600 font-medium">Câu hỏi gợi ý:</div>
+                <div className="flex flex-wrap gap-2">
+                  {suggestedQuestions.map((question, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setInputText(question);
+                        setTimeout(sendMessage, 100);
+                      }}
+                      className="bg-white hover:bg-gray-100 text-gray-700 text-xs rounded-full px-3 py-1 border transition-colors"
+                      disabled={isLoading}
+                    >
+                      {question}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
-            {messages.map((message, idx) => (
+            
+            {/* Messages */}
+            {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -327,71 +347,49 @@ const SizeChatBot = ({ products = [] }) => {
                 <div
                   className={`max-w-xs px-3 py-2 rounded-lg ${
                     message.type === 'user'
-                      ? 'bg-black text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-black text-white rounded-br-none'
+                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-line">{message.text}</p>
                   <p className="text-xs opacity-70 mt-1">
-                    {message.timestamp.toLocaleTimeString('vi-VN', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {formatTime(message.timestamp)}
                   </p>
                 </div>
               </div>
             ))}
-            {/* Gợi ý sản phẩm sau khi bot trả lời */}
-            {suggestedProducts.length > 0 && (
+            
+            {/* Loading */}
+            {isLoading && (
               <div className="flex justify-start">
-                <div className="max-w-xs w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 mt-2">
-                  <div className="text-xs font-bold mb-2 text-gray-700">Gợi ý sản phẩm phù hợp:</div>
-                  <div className="flex flex-col gap-2">
-                    {suggestedProducts.map((p) => (
-                      <div key={p.id} className="flex gap-2 items-center border-b last:border-b-0 pb-2 last:pb-0">
-                        <img src={p.imageUrl} alt={p.name} className="w-10 h-10 object-contain rounded" />
-                        <div className="flex-1">
-                          <div className="text-xs font-bold text-black line-clamp-1">{p.name}</div>
-                          <div className="text-xs text-gray-500">{p.price}₫</div>
-                          <button
-                            className="mt-1 text-xs text-blue-600 underline hover:text-blue-800 transition-colors"
-                            onClick={() => handleViewDetail(p.id)}
-                          >
-                            Xem chi tiết
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                <div className="bg-gray-100 text-gray-800 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+                    <span className="text-sm">Đang suy nghĩ...</span>
                   </div>
                 </div>
               </div>
             )}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-xs px-3 py-2 rounded-lg bg-gray-100 text-gray-800 animate-pulse">
-                  <p className="text-sm">Đang trả lời...</p>
-                </div>
-              </div>
-            )}
+            
             <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Nhập chiều cao và cân nặng..."
-                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
-                id="sizechatbot-input"
+                placeholder="Nhập tin nhắn..."
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                disabled={isLoading}
               />
               <button
-                onClick={handleSendMessage}
+                onClick={sendMessage}
                 disabled={!inputText.trim() || isLoading}
-                className="bg-black text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 Gửi
               </button>
