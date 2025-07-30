@@ -1198,8 +1198,8 @@ function ProductDetailPage({ products, onAddToCart }) {
 
   // UI
   return (
-    <div className="min-h-screen bg-white flex justify-center" style={{paddingTop: '7rem'}}>
-      <div className="w-full md:max-w-[75vw] px-0 sm:px-0 md:px-0 flex flex-col md:flex-row items-center gap-4 md:gap-12 border border-gray-200 rounded-none shadow-sm bg-white overflow-y-auto" style={{height: 'calc(100vh - 7rem)', marginTop: '-2px'}}>
+    <div className="min-h-screen bg-white flex justify-center" style={{paddingTop: '5vh'}}>
+      <div className="w-full md:max-w-[75vw] px-0 sm:px-0 md:px-0 flex flex-col md:flex-row items-center gap-4 md:gap-12 overflow-y-auto" style={{height: 'calc(100vh - 5vh)'}}>
         {/* Cụm thumbnail + ảnh sản phẩm */}
         <div className="flex flex-row items-center gap-2 w-full md:w-3/5 h-full mx-auto md:mx-0 px-4">
           <div className="hidden md:flex flex-col gap-4 items-center justify-center h-full">
