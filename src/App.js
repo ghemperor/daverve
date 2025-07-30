@@ -1130,7 +1130,6 @@ function ProductDetailPage({ products, onAddToCart }) {
   const [showDesc, setShowDesc] = React.useState(true);
   const [showDetails, setShowDetails] = React.useState(true);
   const [showSizeTable, setShowSizeTable] = React.useState(false);
-  const [showFullDesc, setShowFullDesc] = React.useState(false);
 
   // Ảnh
   const images = React.useMemo(() => product ? [product.imageUrl, product.imageUrlBack].filter(Boolean) : [], [product]);
@@ -1198,31 +1197,70 @@ function ProductDetailPage({ products, onAddToCart }) {
 
   // UI
   return (
-    <div className="min-h-screen bg-white pt-16 pb-12 flex justify-center">
-      <div className="w-full max-w-[80vw] px-0 sm:px-0 md:px-0 flex flex-col md:flex-row items-center gap-4 md:gap-12" style={{height: 'calc(100vh - 7rem)'}}>
-        {/* Thumbnails dọc bên trái */}
-        <div className="hidden md:flex flex-col gap-4 items-center justify-start h-full pt-8">
+    <div className="min-h-screen bg-white pt-8 md:pt-0 pb-8 md:pb-0 flex justify-center md:items-center">
+      <div className="w-full max-w-[95vw] md:max-w-[80vw] px-2 md:px-0 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-4">
+        {/* Thumbnails dọc bên trái - chỉ hiện desktop */}
+        <div className="hidden md:flex flex-col gap-3 items-center justify-start h-full flex-shrink-0" style={{width: '6%', marginTop: '-2rem'}}>
           {images.map((img, idx) => (
-            <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-              <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded" style={{width: '4vw', height: '4vw'}} />
+            <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`} style={{width: '85%'}}>
+              <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded w-full h-auto" style={{aspectRatio: '1/1'}} />
             </button>
           ))}
         </div>
         
         {/* Ảnh sản phẩm chính */}
-        <div className="flex flex-col items-center justify-center w-full md:w-2/5 h-full group relative px-4" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-          <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg w-full bg-white" style={{height:'auto', maxHeight:'100%'}} />
-          {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
+        <div className="flex flex-col items-center justify-center w-full md:w-[54%] md:h-full group relative px-2 py-4 md:py-0" onWheel={handleImageWheel} tabIndex={0}>
+          <div className="w-full max-w-md md:max-w-none md:w-full" style={{aspectRatio: '1/1'}}>
+            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg w-full h-full bg-white" />
+          </div>
+          
+          {/* Image Gallery Dots - dưới ảnh sản phẩm */}
+          <div className="md:hidden flex flex-col items-center mt-4">
+            <div className="flex justify-center items-center gap-2 mb-2">
+              {images.map((img, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => setCurrentImageIndex(idx)} 
+                  className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                    currentImageIndex === idx 
+                      ? 'bg-black scale-125' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
+                  aria-label={`Xem ảnh ${idx + 1}`}
+                />
+              ))}
+            </div>
+            <div className="text-center text-xs text-gray-500">
+              {currentImageIndex + 1} / {images.length}
+            </div>
+          </div>
+          
+          {/* Nút chuyển ảnh - hiện cả mobile và desktop */}
           <button
             onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
-            className="hidden group-hover:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
+            className="md:hidden group-hover:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 border border-gray-300 shadow-lg rounded-full p-3 flex items-center justify-center z-10 transition-all duration-200"
+            aria-label="Ảnh trước"
+          >
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button
+            onClick={() => setCurrentImageIndex(i => (i + 1) % images.length)}
+            className="md:hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 border border-gray-300 shadow-lg rounded-full p-3 flex items-center justify-center z-10 transition-all duration-200"
+            aria-label="Ảnh sau"
+          >
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+          {/* Desktop buttons - hover to show */}
+          <button
+            onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
+            className="hidden md:group-hover:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
             aria-label="Ảnh trước"
           >
             <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>
           </button>
           <button
             onClick={() => setCurrentImageIndex(i => (i + 1) % images.length)}
-            className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
+            className="hidden md:group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 border border-gray-300 hover:border-black shadow-lg rounded-full p-2 items-center justify-center z-10 transition-all duration-200 hover:bg-white hover:scale-110"
             aria-label="Ảnh sau"
           >
             <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -1230,27 +1268,21 @@ function ProductDetailPage({ products, onAddToCart }) {
         </div>
         
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-2/5 max-w-full flex flex-col gap-4 justify-center pt-0 px-4 py-2 h-full">
+        <div className="flex flex-col gap-4 justify-start md:justify-center pt-2 md:pt-0 px-3 py-4 md:py-0 w-full md:w-[40%] md:h-full items-center">
           <div className="w-full">
-            {/* Thumbnails ngang trên mobile */}
-            <div className="flex md:hidden gap-2 items-center mb-4 justify-center">
-              {images.map((img, idx) => (
-                <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`w-2 h-2 rounded-full transition-all ${currentImageIndex === idx ? 'bg-black' : 'bg-gray-300'}`}></button>
-              ))}
-            </div>
-            
-            {/* Tên sản phẩm và giá */}
+            {/* Tên sản phẩm - luôn ở trên cùng */}
             <div className="mb-4">
-              {/* Tên sản phẩm */}
-              <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
+              <div className="text-lg md:text-2xl font-extrabold uppercase mb-2 tracking-tight break-words text-left">{product.name}</div>
               {/* Giá chính và giá sale cùng hàng */}
-              <div className="flex items-center gap-3 mb-1">
-                <div className="text-sm md:text-lg font-bold">{formatPrice(product.price)}</div>
+              <div className="flex items-center gap-3 mb-1 justify-start">
+                <div className="text-base md:text-lg font-bold">{formatPrice(product.price)}</div>
                 {product.originalPrice && (
-                  <div className="text-xs md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
+                  <div className="text-sm md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
                 )}
               </div>
             </div>
+            
+
             {/* Chọn màu */}
             <div className="mb-4">
               <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
@@ -1348,15 +1380,7 @@ function ProductDetailPage({ products, onAddToCart }) {
               <button className="w-full px-4 py-3 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
               <button className="w-full px-4 py-3 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
             </div>
-            {/* Mobile: Nút XEM THÊM ở cuối giới hạn */}
-            <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2">
-              <button 
-                onClick={() => setShowFullDesc(!showFullDesc)} 
-                className="w-full py-2 border border-black text-black font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
-              >
-                {showFullDesc ? 'THU GỌN' : 'XEM THÊM'}
-              </button>
-            </div>
+
           </div>
         </div>
       </div>
