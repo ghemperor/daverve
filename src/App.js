@@ -1231,98 +1231,99 @@ function ProductDetailPage({ products, onAddToCart }) {
         </div>
         {/* Thông tin chi tiết */}
         <div className="w-full md:w-2/5 max-w-full flex flex-col gap-2 justify-center items-center pt-0 px-3 py-2 h-full">
-          {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
-          <div className="flex md:hidden gap-2 items-center mb-1 justify-center">
-            {images.map((img, idx) => (
-              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`w-2 h-2 rounded-full transition-all ${currentImageIndex === idx ? 'bg-black' : 'bg-gray-300'}`}></button>
-            ))}
-          </div>
-          {/* Tên sản phẩm */}
-          <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words text-center">{product.name}</div>
-          <div className="text-sm md:text-lg font-bold mb-1 text-center">{formatPrice(product.price)}</div>
-          {product.originalPrice && (
-            <div className="text-xs md:text-base text-gray-500 line-through mb-1 text-center">{formatPrice(product.originalPrice)}</div>
-          )}
-          {/* Chọn màu */}
-          <div className="mb-1 text-center">
-            <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {colorOptions.map((c, idx) => (
-                <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
+          <div className="w-full max-w-md">
+            {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
+            <div className="flex md:hidden gap-2 items-center mb-1 justify-center">
+              {images.map((img, idx) => (
+                <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`w-2 h-2 rounded-full transition-all ${currentImageIndex === idx ? 'bg-black' : 'bg-gray-300'}`}></button>
               ))}
             </div>
-          </div>
-          {/* Chọn size + nút xem bảng size */}
-          <div className="mb-1 text-center">
-            <div className="flex items-center gap-2 md:gap-4 mb-1 justify-center">
-              <div className="font-bold text-xs md:text-sm tracking-widest">KÍCH THƯỚC</div>
-              <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
-            </div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {sizeOptions.map((s) => (
-                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
-                  {s.size}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Số lượng */}
-          <div className="mb-1 text-center">
-            <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">SỐ LƯỢNG</div>
-            <div className="flex items-center border rounded-md w-fit mx-auto">
-              <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 md:px-3 py-1">-</button>
-              <span className="px-3 md:px-4 text-base md:text-lg">{quantity}</span>
-              <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
-            </div>
-          </div>
-          {/* Actions trên mobile */}
-          <div className="md:hidden flex gap-2 mt-2 w-full">
-            <button className="w-full px-3 py-2 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
-            <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
-          </div>
-          {/* Shipping & Returns */}
-          <div className="border-t border-black w-full mx-0 pt-1 text-center">
-            <div className="font-bold text-sm md:text-lg tracking-widest mt-1 mb-1">VẬN CHUYỂN & ĐỔI TRẢ</div>
-            <div className="text-xs md:text-sm text-gray-800 leading-relaxed mb-1">
-              Miễn phí vận chuyển cho đơn hàng từ 40$ trở lên.<br />
-              Thời gian xử lý và giao hàng từ 5-7 ngày làm việc.<br />
-              Đóng gói quà tặng bao gồm hộp signature của shop.
-            </div>
-          </div>
-          {/* Collapsible Description */}
-          <div className="border-t border-black w-full mx-0 pt-1 text-center">
-            <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1 mx-auto" onClick={() => setShowDesc(v => !v)}>
-              MÔ TẢ SẢN PHẨM
-              <span>{showDesc ? '▼' : '▲'}</span>
-            </button>
-            {showDesc && (
-              <div className="text-xs md:text-base text-gray-800 leading-relaxed mb-1">
-                {/* Desktop: Giữ nguyên scroll */}
-                <div className="hidden md:block max-h-24 md:max-h-32 overflow-y-auto">
-                  {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
-                </div>
-                {/* Mobile: Hiển thị đầy đủ */}
-                <div className="md:hidden">
-                  {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
-                </div>
+            {/* Tên sản phẩm */}
+            <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
+            <div className="text-sm md:text-lg font-bold mb-1">{formatPrice(product.price)}</div>
+            {product.originalPrice && (
+              <div className="text-xs md:text-base text-gray-500 line-through mb-1">{formatPrice(product.originalPrice)}</div>
+            )}
+                      {/* Chọn màu */}
+            <div className="mb-1">
+              <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
+              <div className="flex gap-2 flex-wrap">
+                {colorOptions.map((c, idx) => (
+                  <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
+                ))}
               </div>
-            )}
-          </div>
-          {/* Collapsible Product Details */}
-          <div className="border-t border-black w-full mx-0 text-center">
-            <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1 mx-auto" onClick={() => setShowDetails(v => !v)}>
-              CHI TIẾT SẢN PHẨM
-              <span>{showDetails ? '▼' : '▲'}</span>
-            </button>
-            {showDetails && (
-              <ul className="text-xs md:text-base text-gray-800 leading-relaxed list-disc pl-5 text-left inline-block">
-                <li>Chất liệu: Cotton cao cấp</li>
-                <li>Form: Unisex</li>
-                <li>Xuất xứ: Việt Nam</li>
-                <li>Hình ảnh chỉ mang tính chất minh họa, sản phẩm thực tế có thể khác đôi chút.</li>
-              </ul>
-            )}
-          </div>
+            </div>
+            {/* Chọn size + nút xem bảng size */}
+            <div className="mb-1">
+              <div className="flex items-center gap-2 md:gap-4 mb-1">
+                <div className="font-bold text-xs md:text-sm tracking-widest">KÍCH THƯỚC</div>
+                <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {sizeOptions.map((s) => (
+                  <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
+                    {s.size}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Số lượng */}
+            <div className="mb-1">
+              <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">SỐ LƯỢNG</div>
+              <div className="flex items-center border rounded-md w-fit">
+                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 md:px-3 py-1">-</button>
+                <span className="px-3 md:px-4 text-base md:text-lg">{quantity}</span>
+                <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
+              </div>
+            </div>
+                      {/* Actions trên mobile */}
+            <div className="md:hidden flex gap-2 mt-2 w-full">
+              <button className="w-full px-3 py-2 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
+              <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
+            </div>
+            {/* Shipping & Returns */}
+            <div className="border-t border-black w-full mx-0 pt-1">
+              <div className="font-bold text-sm md:text-lg tracking-widest mt-1 mb-1">VẬN CHUYỂN & ĐỔI TRẢ</div>
+              <div className="text-xs md:text-sm text-gray-800 leading-relaxed mb-1">
+                Miễn phí vận chuyển cho đơn hàng từ 40$ trở lên.<br />
+                Thời gian xử lý và giao hàng từ 5-7 ngày làm việc.<br />
+                Đóng gói quà tặng bao gồm hộp signature của shop.
+              </div>
+            </div>
+            {/* Collapsible Description */}
+            <div className="border-t border-black w-full mx-0 pt-1">
+              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1" onClick={() => setShowDesc(v => !v)}>
+                MÔ TẢ SẢN PHẨM
+                <span>{showDesc ? '▼' : '▲'}</span>
+              </button>
+              {showDesc && (
+                <div className="text-xs md:text-base text-gray-800 leading-relaxed mb-1">
+                  {/* Desktop: Giữ nguyên scroll */}
+                  <div className="hidden md:block max-h-24 md:max-h-32 overflow-y-auto">
+                    {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
+                  </div>
+                  {/* Mobile: Hiển thị đầy đủ */}
+                  <div className="md:hidden">
+                    {product.description || 'Sản phẩm thời trang cao cấp, thiết kế hiện đại, chất liệu bền đẹp.'}
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Collapsible Product Details */}
+            <div className="border-t border-black w-full mx-0">
+              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mt-1 mb-1" onClick={() => setShowDetails(v => !v)}>
+                CHI TIẾT SẢN PHẨM
+                <span>{showDetails ? '▼' : '▲'}</span>
+              </button>
+              {showDetails && (
+                <ul className="text-xs md:text-base text-gray-800 leading-relaxed list-disc pl-5">
+                  <li>Chất liệu: Cotton cao cấp</li>
+                  <li>Form: Unisex</li>
+                  <li>Xuất xứ: Việt Nam</li>
+                  <li>Hình ảnh chỉ mang tính chất minh họa, sản phẩm thực tế có thể khác đôi chút.</li>
+                </ul>
+              )}
+            </div>
           {/* Popup bảng size */}
           {showSizeTable && (
             <div className="fixed inset-0 z-[120] bg-black bg-opacity-50 flex items-center justify-center" onClick={() => setShowSizeTable(false)}>
@@ -1333,21 +1334,22 @@ function ProductDetailPage({ products, onAddToCart }) {
               </div>
             </div>
           )}
-          {/* Divider trước button */}
-          <div className="border-t border-black w-full mx-0" />
-          {/* Actions cuối cùng - chỉ hiển thị trên desktop */}
-          <div className="hidden md:flex gap-2 mt-2 w-full">
-            <button className="w-full px-4 py-3 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
-            <button className="w-full px-4 py-3 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
-          </div>
-          {/* Mobile: Nút XEM THÊM ở cuối giới hạn */}
-          <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2">
-            <button 
-              onClick={() => setShowFullDesc(!showFullDesc)} 
-              className="w-full py-2 border border-black text-black font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
-            >
-              {showFullDesc ? 'THU GỌN' : 'XEM THÊM'}
-            </button>
+                      {/* Divider trước button */}
+            <div className="border-t border-black w-full mx-0" />
+            {/* Actions cuối cùng - chỉ hiển thị trên desktop */}
+            <div className="hidden md:flex gap-2 mt-2 w-full">
+              <button className="w-full px-4 py-3 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
+              <button className="w-full px-4 py-3 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
+            </div>
+            {/* Mobile: Nút XEM THÊM ở cuối giới hạn */}
+            <div className="md:hidden absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2">
+              <button 
+                onClick={() => setShowFullDesc(!showFullDesc)} 
+                className="w-full py-2 border border-black text-black font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white transition-colors"
+              >
+                {showFullDesc ? 'THU GỌN' : 'XEM THÊM'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
