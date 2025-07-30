@@ -1284,7 +1284,7 @@ function ProductDetailPage({ products, onAddToCart }) {
             {/* Shipping & Returns */}
             <div className="border-t border-black w-full mx-0 pt-3 mt-4">
               <div className="font-bold text-sm md:text-lg tracking-widest mb-3">VẬN CHUYỂN & ĐỔI TRẢ</div>
-              <div className="text-xs md:text-sm text-gray-800 leading-relaxed mb-3">
+              <div className="text-xs md:text-base text-gray-800 leading-relaxed mb-3">
                 Miễn phí vận chuyển cho đơn hàng từ 40$ trở lên.<br />
                 Thời gian xử lý và giao hàng từ 5-7 ngày làm việc.<br />
                 Đóng gói quà tặng bao gồm hộp signature của shop.
