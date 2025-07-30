@@ -1199,7 +1199,7 @@ function ProductDetailPage({ products, onAddToCart }) {
   // UI
   return (
     <div className="min-h-screen bg-white pt-28 flex justify-center">
-      <div className="w-full max-w-screen-lg px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-start gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white">
+      <div className="w-full md:max-w-[75vw] max-h-[90vh] px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-start gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white overflow-y-auto">
         {/* Cụm thumbnail + ảnh sản phẩm */}
         <div className="flex flex-row items-start gap-2 w-full md:w-3/5 max-w-[520px] mx-auto md:mx-0">
           <div className="hidden md:flex flex-col gap-4 items-start justify-start">
