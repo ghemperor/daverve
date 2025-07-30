@@ -1201,16 +1201,16 @@ function ProductDetailPage({ products, onAddToCart }) {
     <div className="min-h-screen bg-white pt-16 pb-12 flex justify-center">
       <div className="w-full max-w-[80vw] px-0 sm:px-0 md:px-0 flex flex-col md:flex-row items-center gap-4 md:gap-12" style={{height: 'calc(100vh - 7rem)'}}>
         {/* Cụm thumbnail + ảnh sản phẩm */}
-        <div className="flex flex-col w-full md:w-3/5 h-full mx-auto md:mx-0 px-4">
-          {/* Thumbnails ngang trên đầu */}
-          <div className="flex gap-4 items-center justify-center mb-4">
+        <div className="flex flex-row items-center gap-2 w-full md:w-3/5 h-full mx-auto md:mx-0 px-4">
+          {/* Thumbnails dọc bên trái */}
+          <div className="flex flex-col gap-4 items-center justify-center h-full">
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
                 <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded" style={{width: '4vw', height: '4vw'}} />
               </button>
             ))}
           </div>
-          <div className="flex flex-col items-center justify-center flex-1 group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
+          <div className="flex flex-col items-center justify-center w-full group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
             <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg w-full bg-white" style={{height:'auto', maxHeight:'100%'}} />
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
