@@ -1128,7 +1128,7 @@ function ProductDetailPage({ products, onAddToCart }) {
   const [selectedSize, setSelectedSize] = React.useState(null);
   const [quantity, setQuantity] = React.useState(1);
   const [showDesc, setShowDesc] = React.useState(true);
-  const [showDetails, setShowDetails] = React.useState(false);
+  const [showDetails, setShowDetails] = React.useState(true);
   const [showSizeTable, setShowSizeTable] = React.useState(false);
   const [showFullDesc, setShowFullDesc] = React.useState(false);
 
@@ -1198,32 +1198,19 @@ function ProductDetailPage({ products, onAddToCart }) {
 
   // UI
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-white pt-28 flex justify-center">
-      <div className="w-full max-w-screen-lg px-2 sm:px-4 md:px-8 flex flex-col md:flex-row items-start gap-4 md:gap-12 border border-gray-200 rounded-lg shadow-sm bg-white">
-        {/* Cụm thumbnail + ảnh sản phẩm */}
-        <div className="flex flex-row items-start gap-2 w-full md:w-3/5 max-w-[520px] mx-auto md:mx-0">
-          <div className="hidden md:flex flex-col gap-4 items-start justify-start">
-=======
     <div className="min-h-screen bg-white flex justify-center items-center" style={{paddingTop: '100px', paddingBottom: '60px'}}>
       <div className="w-full max-w-[90vw] md:max-w-[75vw] h-[calc(100vh-160px)] max-h-[calc(100vh-160px)] flex flex-col md:flex-row items-stretch gap-2 md:gap-6 overflow-hidden">
         {/* Cụm thumbnail + ảnh sản phẩm */}
         <div className="flex flex-col md:flex-row items-stretch w-full md:w-3/5 max-w-full bg-white">
           <div className="hidden md:flex flex-col gap-2 items-start justify-start py-2 px-2 overflow-y-auto max-h-full">
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
             {images.map((img, idx) => (
               <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-20 h-20 object-contain rounded" />
+                <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded" style={{width: '4vw', height: '4vw'}} />
               </button>
             ))}
           </div>
-<<<<<<< HEAD
-          <div className="flex flex-col items-center justify-start w-auto max-w-[400px] group relative" onWheel={handleImageWheel} tabIndex={0} style={{outline:'none'}}>
-            <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[500px] w-full bg-white" style={{maxWidth:'100%', minHeight:'320px'}} />
-=======
           <div className="flex flex-col items-center justify-center flex-1 group relative overflow-y-auto max-h-full py-2">
             <img src={images[currentImageIndex]} alt={product.name} className="object-contain rounded-lg max-h-[70vh] w-full bg-white" style={{maxWidth:'100%', minHeight:'180px'}} />
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
             {/* Nút chuyển ảnh nằm trên ảnh, ẩn mặc định, hiện khi hover ảnh */}
             <button
               onClick={() => setCurrentImageIndex(i => (i - 1 + images.length) % images.length)}
@@ -1242,20 +1229,6 @@ function ProductDetailPage({ products, onAddToCart }) {
           </div>
         </div>
         {/* Thông tin chi tiết */}
-<<<<<<< HEAD
-        <div className="w-full md:w-2/5 max-w-md flex flex-col gap-4 justify-start pt-0 mx-auto md:mx-0">
-          {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
-          <div className="flex md:hidden gap-4 items-center mb-2 justify-center">
-            {images.map((img, idx) => (
-              <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                <img src={img} alt={`Preview ${idx+1}`} className="w-14 h-14 object-contain rounded" />
-              </button>
-            ))}
-          </div>
-          {/* Tên sản phẩm */}
-          <div className="text-2xl md:text-3xl font-extrabold uppercase mb-2 tracking-tight break-words">{product.name}</div>
-          <div className="text-lg md:text-xl font-bold mb-2">{formatPrice(product.price)}</div>
-=======
         <div className={`w-full md:w-2/5 max-w-full flex flex-col gap-2 justify-start pt-0 px-3 py-2 ${showFullDesc ? 'overflow-y-auto' : 'overflow-hidden'} max-h-full`}>
           {/* Thumbnails ngang (chỉ hiện trên mobile hoặc khi cần) */}
           <div className="flex md:hidden gap-2 items-center mb-1 justify-center">
@@ -1266,17 +1239,12 @@ function ProductDetailPage({ products, onAddToCart }) {
           {/* Tên sản phẩm */}
           <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
           <div className="text-sm md:text-lg font-bold mb-1">{formatPrice(product.price)}</div>
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
           {product.originalPrice && (
             <div className="text-xs md:text-base text-gray-500 line-through mb-1">{formatPrice(product.originalPrice)}</div>
           )}
           {/* Chọn màu */}
           <div className="mb-1">
-<<<<<<< HEAD
-            <div className="font-bold text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-=======
             <div className="font-bold text-xs md:text-sm mb-1 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
             <div className="flex gap-2 flex-wrap">
               {colorOptions.map((c, idx) => (
                 <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
@@ -1291,11 +1259,7 @@ function ProductDetailPage({ products, onAddToCart }) {
             </div>
             <div className="flex gap-2 flex-wrap">
               {sizeOptions.map((s) => (
-<<<<<<< HEAD
-                <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[44px] w-12 px-0 py-2 border rounded text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
-=======
                 <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
                   {s.size}
                 </button>
               ))}
@@ -1310,14 +1274,11 @@ function ProductDetailPage({ products, onAddToCart }) {
               <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
             </div>
           </div>
-<<<<<<< HEAD
-=======
           {/* Actions trên mobile */}
           <div className="md:hidden flex gap-2 mt-2 w-full">
             <button className="w-full px-3 py-2 bg-black text-white font-bold rounded transition hover:bg-gray-900" disabled={isOutOfStock} onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
             <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
           </div>
->>>>>>> 216e6ea732df569a6eb2e423196b1f878bbcc2ad
           {/* Shipping & Returns */}
           <div className="border-t border-black w-full mx-0 pt-1">
             <div className="font-bold text-sm md:text-lg tracking-widest mt-1 mb-1">VẬN CHUYỂN & ĐỔI TRẢ</div>
