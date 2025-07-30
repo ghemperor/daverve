@@ -1239,45 +1239,34 @@ function ProductDetailPage({ products, onAddToCart }) {
               ))}
             </div>
             
-            {/* Header với thumbnails và tên sản phẩm */}
-            <div className="flex items-start gap-4 mb-4">
-              {/* Thumbnails ngang trên desktop - nằm ngang với tên */}
-              <div className="hidden md:flex flex-row gap-2">
-                {images.map((img, idx) => (
-                  <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                    <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded" style={{width: '2.5rem', height: '2.5rem'}} />
-                  </button>
-                ))}
-              </div>
-              
+            {/* Header với tên sản phẩm - đã bỏ thumbnails */}
+            <div className="text-center mb-4">
               {/* Tên sản phẩm */}
-              <div className="flex-1">
-                <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
-                {/* Giá chính và giá sale cùng hàng */}
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="text-sm md:text-lg font-bold">{formatPrice(product.price)}</div>
-                  {product.originalPrice && (
-                    <div className="text-xs md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
-                  )}
-                </div>
+              <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
+              {/* Giá chính và giá sale cùng hàng */}
+              <div className="flex items-center gap-3 mb-1 justify-center">
+                <div className="text-sm md:text-lg font-bold">{formatPrice(product.price)}</div>
+                {product.originalPrice && (
+                  <div className="text-xs md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
+                )}
               </div>
             </div>
                       {/* Chọn màu */}
-            <div className="mb-4">
+            <div className="mb-4 text-center">
               <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap justify-center">
                 {colorOptions.map((c, idx) => (
                   <button key={c.colorName} onClick={() => setSelectedColor(c)} className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 ${selectedColor?.colorName === c.colorName ? 'border-black scale-110' : 'border-gray-200'} bg-white flex items-center justify-center transition-all`} style={{backgroundColor: c.colorHex}} title={c.colorName}></button>
                 ))}
               </div>
             </div>
             {/* Chọn size + nút xem bảng size */}
-            <div className="mb-4">
-              <div className="flex items-center gap-2 md:gap-4 mb-2">
+            <div className="mb-4 text-center">
+              <div className="flex items-center gap-2 md:gap-4 mb-2 justify-center">
                 <div className="font-bold text-xs md:text-sm tracking-widest">KÍCH THƯỚC</div>
                 <button className="text-xs underline text-blue-600 hover:text-blue-800" onClick={() => setShowSizeTable(true)}>Xem bảng size</button>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap justify-center">
                 {sizeOptions.map((s) => (
                   <button key={s.size} onClick={() => setSelectedSize(s)} disabled={!s.inStock} className={`min-w-[32px] w-8 md:min-w-[44px] md:w-12 px-0 py-1 md:py-2 border rounded text-xs md:text-sm font-semibold transition-colors text-center ${selectedSize?.size === s.size ? 'border-black bg-black text-white' : 'border-gray-300'} disabled:bg-gray-100 disabled:text-gray-400`}>
                     {s.size}
@@ -1286,9 +1275,9 @@ function ProductDetailPage({ products, onAddToCart }) {
               </div>
             </div>
             {/* Số lượng */}
-            <div className="mb-4">
+            <div className="mb-4 text-center">
               <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">SỐ LƯỢNG</div>
-              <div className="flex items-center border rounded-md w-fit">
+              <div className="flex items-center border rounded-md w-fit mx-auto">
                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-2 md:px-3 py-1">-</button>
                 <span className="px-3 md:px-4 text-base md:text-lg">{quantity}</span>
                 <button onClick={() => setQuantity(q => q + 1)} className="px-2 md:px-3 py-1">+</button>
@@ -1300,7 +1289,7 @@ function ProductDetailPage({ products, onAddToCart }) {
               <button className="w-full px-3 py-2 border border-black text-black font-bold rounded transition hover:bg-black hover:text-white" disabled={isOutOfStock}>MUA NGAY</button>
             </div>
             {/* Shipping & Returns */}
-            <div className="border-t border-black w-full mx-0 pt-3 mt-4">
+            <div className="border-t border-black w-full mx-0 pt-3 mt-4 text-center">
               <div className="font-bold text-sm md:text-lg tracking-widest mb-3">VẬN CHUYỂN & ĐỔI TRẢ</div>
               <div className="text-xs md:text-base text-gray-800 leading-relaxed mb-3">
                 Miễn phí vận chuyển cho đơn hàng từ 40$ trở lên.<br />
@@ -1309,8 +1298,8 @@ function ProductDetailPage({ products, onAddToCart }) {
               </div>
             </div>
             {/* Collapsible Description */}
-            <div className="border-t border-black w-full mx-0 pt-3">
-              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mb-3" onClick={() => setShowDesc(v => !v)}>
+            <div className="border-t border-black w-full mx-0 pt-3 text-center">
+              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mb-3 mx-auto" onClick={() => setShowDesc(v => !v)}>
                 MÔ TẢ SẢN PHẨM
                 <span>{showDesc ? '▼' : '▲'}</span>
               </button>
@@ -1328,13 +1317,13 @@ function ProductDetailPage({ products, onAddToCart }) {
               )}
             </div>
             {/* Collapsible Product Details */}
-            <div className="border-t border-black w-full mx-0 pt-3">
-              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mb-3" onClick={() => setShowDetails(v => !v)}>
+            <div className="border-t border-black w-full mx-0 pt-3 text-center">
+              <button className="flex items-center gap-2 font-extrabold text-sm md:text-lg uppercase tracking-widest mb-3 mx-auto" onClick={() => setShowDetails(v => !v)}>
                 CHI TIẾT SẢN PHẨM
                 <span>{showDetails ? '▼' : '▲'}</span>
               </button>
               {showDetails && (
-                <ul className="text-xs md:text-base text-gray-800 leading-relaxed list-disc pl-5 mb-3">
+                <ul className="text-xs md:text-base text-gray-800 leading-relaxed list-disc pl-5 mb-3 text-left inline-block">
                   <li>Chất liệu: Cotton cao cấp</li>
                   <li>Form: Unisex</li>
                   <li>Xuất xứ: Việt Nam</li>
