@@ -1230,7 +1230,7 @@ function ProductDetailPage({ products, onAddToCart }) {
         </div>
         
         {/* Thông tin chi tiết */}
-        <div className="w-full md:w-2/5 max-w-full flex flex-col gap-4 justify-start pt-0 px-4 py-2 h-full">
+        <div className="w-full md:w-2/5 max-w-full flex flex-col gap-4 justify-center pt-0 px-4 py-2 h-full">
           <div className="w-full">
             {/* Thumbnails ngang trên mobile */}
             <div className="flex md:hidden gap-2 items-center mb-4 justify-center">
@@ -1239,30 +1239,19 @@ function ProductDetailPage({ products, onAddToCart }) {
               ))}
             </div>
             
-            {/* Header với thumbnails và tên sản phẩm */}
-            <div className="flex items-start gap-4 mb-4">
-              {/* Thumbnails ngang trên desktop - nằm ngang với tên */}
-              <div className="hidden md:flex flex-row gap-2">
-                {images.map((img, idx) => (
-                  <button key={img} onClick={() => setCurrentImageIndex(idx)} className={`rounded p-1 bg-white transition-all ${currentImageIndex === idx ? 'ring-2 ring-black' : ''}`}>
-                    <img src={img} alt={`Preview ${idx+1}`} className="object-contain rounded" style={{width: '2.5rem', height: '2.5rem'}} />
-                  </button>
-                ))}
-              </div>
-              
+            {/* Tên sản phẩm và giá */}
+            <div className="mb-4">
               {/* Tên sản phẩm */}
-              <div className="flex-1">
-                <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
-                {/* Giá chính và giá sale cùng hàng */}
-                <div className="flex items-center gap-3 mb-1">
-                  <div className="text-sm md:text-lg font-bold">{formatPrice(product.price)}</div>
-                  {product.originalPrice && (
-                    <div className="text-xs md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
-                  )}
-                </div>
+              <div className="text-base md:text-2xl font-extrabold uppercase mb-1 tracking-tight break-words">{product.name}</div>
+              {/* Giá chính và giá sale cùng hàng */}
+              <div className="flex items-center gap-3 mb-1">
+                <div className="text-sm md:text-lg font-bold">{formatPrice(product.price)}</div>
+                {product.originalPrice && (
+                  <div className="text-xs md:text-base text-gray-500 line-through">{formatPrice(product.originalPrice)}</div>
+                )}
               </div>
             </div>
-                      {/* Chọn màu */}
+            {/* Chọn màu */}
             <div className="mb-4">
               <div className="font-bold text-xs md:text-sm mb-2 tracking-widest">MÀU SẮC: <span className="font-normal">{selectedColor?.colorName}</span></div>
               <div className="flex gap-2 flex-wrap">
